@@ -138,15 +138,23 @@ bölümünde yayınlanır. İndirip `app/` klasörüne koyun:
 
 | Dosya | Açıklama | Boyut |
 |---|---|---|
-| `model_in_5_1.h5` | Keras CNN sınıflandırıcı (normal / anormal) | ~298 MB |
-| `best.pt` | YOLOv8m-seg lezyon segmentasyon modeli | ~54 MB |
+| `best.pt` | YOLOv8m-seg lezyon segmentasyon modeli | ~52 MB |
+| `model_in_5_1.h5` | Keras CNN sınıflandırıcı (normal / anormal) — **uygulama bunu kullanır** | ~298 MB |
+| `model_in_3.h5` | Keras CNN sınıflandırıcının önceki sürümü (arşiv) | ~298 MB |
 
 ```bash
-# örnek (sürüm etiketini Releases sayfasından doğrulayın)
-curl -L -o app/model_in_5_1.h5 \
-  https://github.com/bahadirmkl/LungScan-AI/releases/download/v1.0/model_in_5_1.h5
-curl -L -o app/best.pt \
-  https://github.com/bahadirmkl/LungScan-AI/releases/download/v1.0/best.pt
+# v1.0.0 sürümündeki ağırlıkları indir
+BASE=https://github.com/bahadirmkl/LungScan-AI/releases/download/v1.0.0
+
+curl -L -o app/best.pt          "$BASE/best.pt"
+curl -L -o app/model_in_5_1.h5 "$BASE/model_in_5_1.h5"
+```
+
+Doğrulama (indirdikten sonra):
+
+```bash
+shasum -a 256 app/best.pt
+# 9ef3dfbce1694af43a0f07f7152211904209536750f27ea8e0da8304b22742d2
 ```
 
 Ağırlıkları sıfırdan üretmek isterseniz `notebooks/02_siniflandirma_cnn.ipynb` (sınıflandırıcı)
