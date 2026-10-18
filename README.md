@@ -1,6 +1,8 @@
 # LungScan-AI
 
-**Akciğer BT (toraks bilgisayarlı tomografi) kesitlerinde kanserli lezyonun otomatik tespiti ve segmentasyonu.**
+**Yapay zekâ tabanlı akciğer kanseri tespiti ve görüntülenmesi (LungScan)**
+
+Akciğer BT (toraks bilgisayarlı tomografi) kesitlerinde kanserli lezyonun otomatik tespiti ve segmentasyonu.
 
 Bu proje, DICOM formatındaki akciğer BT serilerini alıp her kesiti *normal* / *anormal* olarak
 sınıflandıran, anormal kesitlerdeki lezyon bölgesini segmente ederek işaretleyen ve sonucu
@@ -22,6 +24,7 @@ tekrar DICOM formatında üreten uçtan uca bir çalışma hattıdır.
 - [Kullanım](#kullanım)
 - [Veri Kümesi](#veri-kümesi)
 - [Sonuçlar](#sonuçlar)
+  - [Örnek Çıktılar](#örnek-çıktılar)
 - [Notebook Rehberi](#notebook-rehberi)
 - [Gizlilik ve Etik Not](#gizlilik-ve-etik-not)
 - [Lisans](#lisans)
@@ -42,6 +45,13 @@ Sınıflandırma aşaması, incelenecek kesit sayısını ciddi biçimde azaltı
 yalnızca anormal bulunan kesitlerde çalışarak lezyonun sınırını görünür hale getirir.
 
 ## Sistem Mimarisi
+
+Projenin özgün akış şeması — hasta verisinin PACS'ten indirilmesinden sonuçların
+görüntülenmesine kadar tüm süreç:
+
+![LungScan akış şeması](docs/images/akis-semasi.png)
+
+Bileşen düzeyindeki akış:
 
 ```
   ┌─────────────────┐
@@ -109,6 +119,8 @@ LungScan-AI/
 ├── results/
 │   ├── train_yolov8m_seg/               # Eğitim eğrileri ve karmaşıklık matrisi
 │   └── val_yolov8m_seg/                 # Doğrulama tahmin görselleri
+├── docs/
+│   └── images/                          # Akış şeması ve örnek çıktılar
 ├── requirements.txt
 └── LICENSE
 ```
@@ -236,6 +248,20 @@ tek sınıf. Eğitim parametrelerinin tamamı `results/train_yolov8m_seg/args.ya
 
 Ayrıntılı eğriler, karmaşıklık matrisi ve doğrulama tahminleri için
 [`results/`](results/) klasörüne bakın.
+
+Proje sunumunda raporlanan uçtan uca başarı oranları: sınıflandırma modeli **%99.8**,
+lezyon tespiti **%99.0**. Bu değerler projeye özel veri kümesi üzerinde elde edilmiştir
+ve genelleme performansı hakkında bilgi vermez.
+
+### Örnek Çıktılar
+
+Sınıflandırma + segmentasyon hattının anonimleştirilmiş BT kesitleri üzerindeki
+çıktıları (yeşil kutu: tespit edilen lezyon ve güven skoru):
+
+| | |
+|---|---|
+| ![Örnek 1](docs/images/ornek-tespit-1.png) | ![Örnek 2](docs/images/ornek-tespit-2.png) |
+| ![Örnek 3](docs/images/ornek-tespit-3.png) | ![Örnek 4](docs/images/ornek-tespit-4.png) |
 
 ## Notebook Rehberi
 
