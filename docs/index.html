@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>LungScan — Yapay Zekâ Destekli Akciğer Kanseri Tespiti ve Konturlama</title>
+<meta name="description" content="PET/CT kesitlerinde kanserli lezyonun otomatik tespiti ve segmentasyonu: InceptionV3 tabanlı sınıflandırma ve YOLOv8m-seg tabanlı konturlama ile uçtan uca bir çalışma hattı. Akdeniz Üniversitesi bitirme projesi.">
+<meta name="author" content="İhsan Bahadır Emekli">
+<meta name="theme-color" content="#0b1220">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="LungScan — Yapay Zekâ Destekli Akciğer Kanseri Tespiti">
+<meta property="og:description" content="PET/CT kesitlerinde lezyon tespiti ve segmentasyonu: InceptionV3 + YOLOv8m-seg. Maske mAP@50 = 0,838.">
+<meta property="og:image" content="images/ornek-tespit-3.png">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230ea5e9'/%3E%3Cpath d='M50 22v56M50 40c-6-10-18-14-26-10-6 3-8 10-6 18 3 12 14 24 32 26 18-2 29-14 32-26 2-8 0-15-6-18-8-4-20 0-26 10z' fill='none' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+<style>
+  :root {
+    --bg:            #070b14;
+    --bg-soft:       #0d1524;
+    --panel:         #111b2e;
+    --panel-2:       #16233a;
+    --border:        #1f2f4a;
+    --text:          #e8eef7;
+    --text-dim:      #97a7bf;
+    --text-faint:    #6b7d99;
+    --accent:        #38bdf8;
+    --accent-2:      #22d3ee;
+    --accent-soft:   rgba(56, 189, 248, .12);
+    --ok:            #34d399;
+    --warn:          #fbbf24;
+    --radius:        14px;
+    --radius-sm:     9px;
+    --maxw:          1120px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
+
+  /* ---------------------------------------------------------------- nav */
+  header.nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(7, 11, 20, .82);
+    backdrop-filter: saturate(160%) blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: var(--maxw); margin: 0 auto; padding: 0 22px;
+    height: 62px; display: flex; align-items: center; gap: 18px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.01em; }
+  .brand svg { width: 26px; height: 26px; flex: none; }
+  .brand span { white-space: nowrap; }
+  .brand small { color: var(--text-faint); font-weight: 500; font-size: 12px; }
+  nav.links { margin-left: auto; display: flex; gap: 4px; flex-wrap: wrap; }
+  nav.links a {
+    color: var(--text-dim); font-size: 14px; padding: 7px 11px; border-radius: 8px;
+  }
+  nav.links a:hover { color: var(--text); background: var(--panel); text-decoration: none; }
+  nav.links a.gh { color: var(--accent); border: 1px solid var(--border); }
+
+  /* ---------------------------------------------------------------- hero */
+  .hero {
+    position: relative; overflow: hidden;
+    padding: 76px 0 64px;
+    background:
+      radial-gradient(900px 420px at 12% -10%, rgba(56, 189, 248, .16), transparent 60%),
+      radial-gradient(760px 380px at 88% 0%, rgba(34, 211, 238, .10), transparent 62%),
+      linear-gradient(180deg, #0a1120 0%, var(--bg) 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12.5px; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--accent); background: var(--accent-soft);
+    border: 1px solid rgba(56, 189, 248, .28);
+    padding: 6px 13px; border-radius: 999px; font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(30px, 5.2vw, 52px); line-height: 1.1;
+    letter-spacing: -.028em; margin: 22px 0 16px; font-weight: 800;
+  }
+  h1 .grad {
+    background: linear-gradient(100deg, var(--accent) 10%, var(--accent-2) 90%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lede { font-size: clamp(16px, 2vw, 19px); color: var(--text-dim); max-width: 68ch; margin: 0 0 30px; }
+
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 15px;
+    border: 1px solid var(--border); background: var(--panel); color: var(--text);
+    transition: transform .14s ease, border-color .14s ease, background .14s ease;
+  }
+  .btn:hover { text-decoration: none; transform: translateY(-2px); border-color: #2c456b; }
+  .btn.primary {
+    background: linear-gradient(100deg, #0ea5e9, #06b6d4);
+    border-color: transparent; color: #041016;
+  }
+  .btn.primary:hover { filter: brightness(1.08); }
+
+  .stats {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  }
+  .stat {
+    background: linear-gradient(180deg, var(--panel) 0%, rgba(17, 27, 46, .55) 100%);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 18px 16px;
+  }
+  .stat .k { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; }
+  .stat .v { font-size: 30px; font-weight: 800; letter-spacing: -.02em; margin: 6px 0 2px; font-variant-numeric: tabular-nums; }
+  .stat .s { font-size: 13px; color: var(--text-dim); }
+  .stat.hl .v { color: var(--accent); }
+
+  /* ---------------------------------------------------------------- sections */
+  section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: 0; }
+
+  h2 {
+    font-size: clamp(22px, 3vw, 29px); letter-spacing: -.02em;
+    margin: 0 0 10px; font-weight: 750;
+  }
+  h2 .num {
+    display: inline-block; min-width: 34px; color: var(--accent);
+    font-family: var(--mono); font-size: .72em; font-weight: 700;
+  }
+  .sub { color: var(--text-dim); max-width: 74ch; margin: 0 0 30px; }
+  h3 { font-size: 17px; margin: 34px 0 12px; letter-spacing: -.01em; }
+
+  /* ---------------------------------------------------------------- cards */
+  .grid { display: grid; gap: 16px; }
+  .g2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .g3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  .g4 { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+  }
+  .card h4 { margin: 0 0 8px; font-size: 15.5px; }
+  .card p { margin: 0; color: var(--text-dim); font-size: 14.5px; }
+  .card .step {
+    display: inline-grid; place-items: center; width: 26px; height: 26px;
+    border-radius: 8px; background: var(--accent-soft); color: var(--accent);
+    font-weight: 700; font-size: 13px; margin-bottom: 11px;
+    border: 1px solid rgba(56, 189, 248, .25);
+  }
+
+  .pipe { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); }
+  .pipe .node {
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 14px 15px; position: relative;
+  }
+  .pipe .node b { display: block; font-size: 14.5px; }
+  .pipe .node span { font-size: 12.5px; color: var(--text-faint); font-family: var(--mono); }
+  .pipe .node.final { border-color: rgba(52, 211, 153, .45); background: rgba(52, 211, 153, .06); }
+
+  /* ---------------------------------------------------------------- table */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 520px; }
+  th, td { padding: 11px 15px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--panel-2); color: var(--text-dim); font-size: 12.5px; letter-spacing: .05em; text-transform: uppercase; font-weight: 650; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover td { background: rgba(56, 189, 248, .045); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 13.5px; }
+  td strong { color: var(--accent); }
+  .mono { font-family: var(--mono); font-size: 13px; color: var(--text-dim); }
+
+  /* ---------------------------------------------------------------- figures */
+  figure { margin: 0; }
+  figure img { width: 100%; height: auto; display: block; border-radius: var(--radius); border: 1px solid var(--border); background: #fff; }
+  figcaption { font-size: 13px; color: var(--text-faint); margin-top: 10px; }
+  .scrollbox { max-height: 62vh; overflow: auto; border-radius: var(--radius); border: 1px solid var(--border); background: #fff; }
+  .scrollbox img { border: 0; border-radius: 0; }
+  .thumbs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .thumbs img { border-radius: var(--radius-sm); border: 1px solid var(--border); width: 100%; display: block; background: #000; }
+
+  /* ---------------------------------------------------------------- code */
+  pre {
+    background: #060a12; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; overflow-x: auto; margin: 0 0 14px;
+    font-family: var(--mono); font-size: 13.2px; line-height: 1.62; color: #cfe3f7;
+  }
+  pre .c { color: #5b7291; }
+  code { font-family: var(--mono); font-size: .92em; background: var(--panel-2); padding: 2px 6px; border-radius: 5px; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  /* ---------------------------------------------------------------- notes */
+  .note {
+    border-left: 3px solid var(--accent); background: var(--accent-soft);
+    padding: 14px 18px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--text-dim); font-size: 14.5px; margin: 20px 0 0;
+  }
+  .note.warn { border-left-color: var(--warn); background: rgba(251, 191, 36, .09); }
+  .note b { color: var(--text); }
+
+  ul.clean { margin: 0; padding-left: 20px; color: var(--text-dim); }
+  ul.clean li { margin: 6px 0; }
+  ul.clean li b { color: var(--text); }
+
+  .pill {
+    display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px;
+    font-weight: 650; border: 1px solid var(--border); color: var(--text-dim); background: var(--panel-2);
+  }
+  .pill.ok { color: var(--ok); border-color: rgba(52, 211, 153, .4); background: rgba(52, 211, 153, .09); }
+  .pill.warn { color: var(--warn); border-color: rgba(251, 191, 36, .4); background: rgba(251, 191, 36, .09); }
+
+  /* ---------------------------------------------------------------- paper */
+  .papers { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .paper {
+    display: flex; gap: 16px; align-items: flex-start; text-decoration: none;
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;
+    transition: transform .14s ease, border-color .14s ease;
+  }
+  .paper:hover { text-decoration: none; transform: translateY(-2px); border-color: #2c456b; }
+  .paper .ico {
+    width: 44px; height: 44px; flex: none; border-radius: 10px; display: grid; place-items: center;
+    background: var(--accent-soft); border: 1px solid rgba(56, 189, 248, .25); color: var(--accent); font-weight: 700; font-size: 12px;
+  }
+  .paper b { display: block; color: var(--text); margin-bottom: 3px; font-size: 15.5px; }
+  .paper span { color: var(--text-faint); font-size: 13.5px; }
+
+  /* ---------------------------------------------------------------- footer */
+  footer { padding: 44px 0 56px; color: var(--text-faint); font-size: 14px; }
+  footer .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  footer .links { display: flex; gap: 18px; flex-wrap: wrap; }
+
+  @media (max-width: 720px) {
+    nav.links { display: none; }
+    .hero { padding: 54px 0 48px; }
+    section { padding: 48px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <rect width="100" height="100" rx="22" fill="#0ea5e9"/>
+        <path d="M50 22v56M50 40c-6-10-18-14-26-10-6 3-8 10-6 18 3 12 14 24 32 26 18-2 29-14 32-26 2-8 0-15-6-18-8-4-20 0-26 10z"
+              fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>LungScan<small> -AI</small></span>
+    </a>
+    <nav class="links">
+      <a href="#akis">Akış</a>
+      <a href="#sonuclar">Sonuçlar</a>
+      <a href="#notebooklar">Notebook'lar</a>
+      <a href="#makale">Makale</a>
+      <a href="#kurulum">Kurulum</a>
+      <a class="gh" href="https://github.com/bahadirmkl/LungScan-AI">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============================================================ HERO -->
+<div class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Akdeniz Üniversitesi · Elektrik-Elektronik Mühendisliği</span>
+    <h1>Akciğer PET/CT kesitlerinde<br><span class="grad">lezyon tespiti ve konturlama</span></h1>
+    <p class="lede">
+      LungScan, toraks PET/CT kesitlerini <em>normal</em> / <em>anormal</em> olarak sınıflandıran,
+      anormal kesitlerdeki kanserli bölgeyi piksel düzeyinde segmente ederek işaretleyen ve sonucu
+      tekrar DICOM formatında üreten uçtan uca bir derin öğrenme çalışma hattıdır.
+    </p>
+
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/bahadirmkl/LungScan-AI">Depoyu görüntüle</a>
+      <a class="btn" href="#makale">Makaleyi oku (PDF)</a>
+      <a class="btn" href="https://github.com/bahadirmkl/LungScan-AI/releases/tag/v1.0.0">Model ağırlıkları</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat hl">
+        <div class="k">Maske mAP@50</div>
+        <div class="v">0,838</div>
+        <div class="s">YOLOv8m-seg · doğrulama kümesi</div>
+      </div>
+      <div class="stat">
+        <div class="k">Kutu mAP@50</div>
+        <div class="v">0,893</div>
+        <div class="s">kesinlik 0,894 · duyarlılık 0,807</div>
+      </div>
+      <div class="stat">
+        <div class="k">Sınıflandırma</div>
+        <div class="v">%99,8</div>
+        <div class="s">InceptionV3 · 597 anormal / 617 normal</div>
+      </div>
+      <div class="stat">
+        <div class="k">Veri kümesi</div>
+        <div class="v">987</div>
+        <div class="s">789 eğitim / 198 doğrulama kesiti</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ AKIS -->
+<section id="akis">
+  <div class="wrap">
+    <h2><span class="num">01</span>Çalışma hattı</h2>
+    <p class="sub">
+      Sistem iki aşamalıdır. Sınıflandırıcı, incelenecek kesit sayısını ciddi biçimde azaltır;
+      segmentasyon modeli yalnızca anormal bulunan kesitlerde çalışarak lezyonun sınırını
+      görünür hâle getirir.
+    </p>
+
+    <div class="pipe">
+      <div class="node"><b>DICOM serisi</b><span>kaynak_klasor/</span></div>
+      <div class="node"><b>PNG kesitler</b><span>hedef_klas/ · InstanceNumber sırası</span></div>
+      <div class="node"><b>Sınıflandırma</b><span>InceptionV3 → normal / abnormal</span></div>
+      <div class="node"><b>Segmentasyon</b><span>YOLOv8m-seg → segmented/</span></div>
+      <div class="node"><b>Birleştirme</b><span>output/ · tüm kesitler korunur</span></div>
+      <div class="node final"><b>Sonuç DICOM</b><span>hasta_sonuclari/</span></div>
+    </div>
+
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card">
+        <span class="step">1</span>
+        <h4>Veri hazırlama</h4>
+        <p>DICOM → PNG dönüşümü, kesitlerin <span class="mono">InstanceNumber</span> ile sıralanması,
+           QuPath anotasyonlarının COCO JSON'dan YOLO poligon formatına çevrilmesi ve maskelerin üretilmesi.</p>
+      </div>
+      <div class="card">
+        <span class="step">2</span>
+        <h4>Sınıflandırma</h4>
+        <p>ImageNet ağırlıklarıyla başlatılan InceptionV3 modeli, kanserli ve sağlıklı kesitleri
+           ayırt eder. Amaç, segmentasyon modeline yalnızca şüpheli kesitleri göndermektir.</p>
+      </div>
+      <div class="card">
+        <span class="step">3</span>
+        <h4>Konturlama</h4>
+        <p>YOLOv8m-seg, tek aşamada hem sınıfı hem maskeyi üretir. Lezyon sınırı, tanısal içeriği
+           kapatmamak için yalnızca <b>kontur</b> olarak çizilir.</p>
+      </div>
+      <div class="card">
+        <span class="step">4</span>
+        <h4>Görüntüleme</h4>
+        <p>Sonuçlar orijinal DICOM meta verileriyle eşleştirilerek geri yazılır ve Tkinter tabanlı
+           masaüstü arayüzde dilim dilim incelenir.</p>
+      </div>
+    </div>
+
+    <h3>Projenin özgün akış şeması</h3>
+    <div class="scrollbox">
+      <img src="images/akis-semasi.png" alt="LungScan akış şeması: PACS'ten indirilen hasta verisinden sonuçların görüntülenmesine kadar tüm süreç">
+    </div>
+    <figcaption>Şema, proje geliştirme sürecinde çalışmanın bütününü belgelemek için hazırlanmıştır
+      (kaydırmak için içinde aşağı kaydırın).</figcaption>
+  </div>
+</section>
+
+<!-- ============================================================ SONUCLAR -->
+<section id="sonuclar">
+  <div class="wrap">
+    <h2><span class="num">02</span>Sonuçlar</h2>
+    <p class="sub">
+      Nihai model <b>YOLOv8m-seg</b>: 100 epoch, <span class="mono">imgsz=640</span>,
+      <span class="mono">batch=64</span>, SGD (<span class="mono">lr0=0.001</span>), tek sınıf
+      (<span class="mono">Cancer</span>). Metrikler doğrulama kümesi üzerinde, Ultralytics'in
+      COCO değerlendirmesiyle hesaplanmıştır. Eğitim parametrelerinin tamamı
+      <code>results/train_yolov8m_seg/args.yaml</code> içindedir.
+    </p>
+
+    <div class="tbl-wrap" style="margin-bottom:26px">
+      <table>
+        <thead>
+          <tr>
+            <th>Görev</th>
+            <th class="num">Precision</th>
+            <th class="num">Recall</th>
+            <th class="num">mAP@50</th>
+            <th class="num">mAP@50-95</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Kutu (tespit)</td>
+            <td class="num">0,894</td><td class="num">0,807</td>
+            <td class="num"><strong>0,893</strong></td><td class="num">0,576</td>
+          </tr>
+          <tr>
+            <td>Maske (segmentasyon)</td>
+            <td class="num">0,861</td><td class="num">0,773</td>
+            <td class="num"><strong>0,838</strong></td><td class="num">0,472</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <figure>
+      <img src="images/egitim-egrileri.png" alt="YOLOv8m-seg eğitim ve doğrulama kayıp/doğruluk eğrileri">
+      <figcaption>Kayıp, kesinlik, duyarlılık ve mAP eğrileri (100 epoch). Ayrıntılı eğriler ve
+        epoch bazında metrikler <code>results/</code> klasöründedir.</figcaption>
+    </figure>
+
+    <div class="grid g2" style="margin-top:28px">
+      <figure>
+        <img src="images/karisiklik-matrisi.png" alt="YOLOv8m-seg normalleştirilmiş karışıklık matrisi">
+        <figcaption>Normalleştirilmiş karışıklık matrisi — tespit ve segmentasyon için
+          arka plan/lezyon ayrımı.</figcaption>
+      </figure>
+      <figure>
+        <img src="images/dogrulama-tahminleri.jpg" alt="Doğrulama kümesinden model tahminleri: kutu ve güven skorları">
+        <figcaption>Doğrulama batch'inden tahminler. Dosya adları anonimleştirilmiş hasta
+          kimlikleridir; hiçbir hasta bilgisi yayımlanmamıştır.</figcaption>
+      </figure>
+    </div>
+
+    <h3>Örnek çıktılar</h3>
+    <p class="sub" style="margin-bottom:18px">
+      Sınıflandırma + segmentasyon hattının anonimleştirilmiş PET/CT kesitleri üzerindeki çıktıları
+      (yeşil kutu: tespit edilen lezyon ve güven skoru).
+    </p>
+    <div class="thumbs">
+      <img src="images/ornek-tespit-1.png" alt="Örnek tespit 1">
+      <img src="images/ornek-tespit-2.png" alt="Örnek tespit 2">
+      <img src="images/ornek-tespit-3.png" alt="Örnek tespit 3">
+      <img src="images/ornek-tespit-4.png" alt="Örnek tespit 4">
+    </div>
+
+    <div class="note">
+      <b>Bu değerler nasıl okunmalı?</b> Eğitim/doğrulama ayrımı <em>kesit</em> düzeyindedir; aynı
+      hastanın kesitleri iki kümede de bulunabilir. Bu, raporlanan metrikleri iyimser kılar.
+      Hasta düzeyinde (group-wise) bölme, yayına hazır bir değerlendirme için zorunludur.
+      Ayrıca makalede raporlanan %99,8 / %99,0 değerleri de yalnızca bu projeye özel veri kümesi
+      için geçerlidir ve genelleme performansı hakkında bilgi vermez.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ NOTEBOOKLAR -->
+<section id="notebooklar">
+  <div class="wrap">
+    <h2><span class="num">03</span>Notebook'lar</h2>
+    <p class="sub">
+      Numaralandırma, veri hazırlamadan dağıtıma giden sırayı izler. <span class="pill ok">★</span>
+      işaretli iki notebook, depodaki model ağırlıklarını üretir.
+    </p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Notebook</th><th>Yaklaşım</th><th>Not</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">01</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/01_veri_hazirlama.ipynb">01_veri_hazirlama</a></td><td>—</td><td>DICOM → PNG, etiket → maske → YOLO etiketi, train/val ayrımı</td></tr>
+          <tr><td class="num">02</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/02_siniflandirma_vgg16.ipynb">02_siniflandirma_vgg16</a></td><td>VGG16 + tam bağlı başlık</td><td>6 varyantın karşılaştırması</td></tr>
+          <tr><td class="num">03</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/03_siniflandirma_inceptionv3.ipynb">03_siniflandirma_inceptionv3</a></td><td>InceptionV3 + ince ayar</td><td><span class="pill ok">★</span> Üretim sınıflandırıcısı (<span class="mono">model_in_5_1.h5</span>)</td></tr>
+          <tr><td class="num">04</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/04_degerlendirme_konfuzyon_matrisi.ipynb">04_degerlendirme_konfuzyon_matrisi</a></td><td>VGG16 @512²</td><td>Giriş boyutu ablasyonu ve karışıklık matrisi</td></tr>
+          <tr><td class="num">05</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/05_segmentasyon_unet.ipynb">05_segmentasyon_unet</a></td><td>U-Net</td><td>Piksel düzeyinde segmentasyon, IoU / Dice</td></tr>
+          <tr><td class="num">06</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/06_segmentasyon_detectron2.ipynb">06_segmentasyon_detectron2</a></td><td>Mask R-CNN (Detectron2)</td><td>İki aşamalı tespit + segmentasyon</td></tr>
+          <tr><td class="num">07</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/07_segmentasyon_yolov8.ipynb">07_segmentasyon_yolov8</a></td><td>YOLOv8m-seg</td><td><span class="pill ok">★</span> Üretim segmentasyonu (<span class="mono">best.pt</span>)</td></tr>
+          <tr><td class="num">08</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/08_cikarim_pipeline.ipynb">08_cikarim_pipeline</a></td><td>—</td><td>Arayüzün Colab prototipi (uçtan uca hat)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Denemeler</h3>
+    <p class="sub" style="margin-bottom:18px">
+      Üretimde kullanılmayan, karşılaştırma amacıyla tutulan çalışmalar
+      <code>notebooks/denemeler/</code> altındadır:
+    </p>
+    <div class="grid g3">
+      <div class="card">
+        <h4>Model boyutu karşılaştırması</h4>
+        <p>n → n(50 epoch) → m → l → x sırasıyla beş YOLOv8 varyantı. Sonuç: <b>yolov8m</b>
+           doğruluk/hız dengesi açısından en uygun seçimdir.
+           <span class="pill warn">yolov8l</span> için kayıtlı değerler yolov8m ile birebir aynıydı
+           (kopyalama hatası); bu satır bağımsız kanıt olarak değerlendirilmemelidir.</p>
+      </div>
+      <div class="card">
+        <h4>SVM öznitelik çıkarımı</h4>
+        <p>VGG16 öznitelikleri + doğrusal SVM. Yöntem hattı halka açık bir veri kümesi
+           (cats vs dogs) üzerinde denendi; sonuçlar akciğer verisiyle ilgili değildir.</p>
+      </div>
+      <div class="card">
+        <h4>Klasik görüntü işleme</h4>
+        <p>Otsu eşikleme, parlak bölge işaretleme ve watershed. Hiçbiri lezyonu güvenilir biçimde
+           ayırt edemedi; en önemli çıkarım, lezyonun yoğunlukla değil <b>bağlamla</b>
+           tanımlandığıdır.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ MAKALE -->
+<section id="makale">
+  <div class="wrap">
+    <h2><span class="num">04</span>Makale</h2>
+    <p class="sub">
+      <b>Akciğer Kanser Tanılı Hastalarda Kanserli Doku Tespiti İçin Yapay Zeka Yöntemleri
+      Kullanılarak Kanserli Bölgenin Konturlanması</b><br>
+      Doç. Dr. H. Feza Carlak, İhsan Bahadır Emekli — Akdeniz Üniversitesi,
+      Elektrik-Elektronik Mühendisliği Bölümü.
+    </p>
+
+    <div class="papers">
+      <a class="paper" href="makale/LungScan-Makale-TR.pdf">
+        <span class="ico">TR</span>
+        <span>
+          <b>Türkçe (özgün makale)</b>
+          <span>7 sayfa · PET/CT veri kümesi, InceptionV3 sınıflandırma, YOLOv8 segmentasyon ve GUI</span>
+        </span>
+      </a>
+      <a class="paper" href="makale/LungScan-Paper-EN.pdf">
+        <span class="ico">EN</span>
+        <span>
+          <b>English (translation)</b>
+          <span>7 pages · Detection and Contouring of Cancerous Tissue in Lung Cancer Patients</span>
+        </span>
+      </a>
+    </div>
+
+    <div class="note warn" style="margin-top:24px">
+      <b>Not:</b> Makale hakem değerlendirmesinden geçmiş bir yayın değildir; bitirme projesi
+      raporu olarak hazırlanmıştır. Metrikler yalnızca projeye özel veri kümesi üzerinde elde
+      edilmiştir. PDF'lerde hasta adı, protokol numarası veya yakılmış (burned-in) kimlik bilgisi
+      bulunmaz.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ KURULUM -->
+<section id="kurulum">
+  <div class="wrap">
+    <h2><span class="num">05</span>Kurulum ve kullanım</h2>
+    <p class="sub">
+      Model ağırlıkları depo boyutunu şişirmemek için GitHub Releases üzerinden dağıtılır;
+      veri kümesi hasta gizliliği nedeniyle paylaşılmaz.
+    </p>
+
+    <div class="grid g2">
+      <div>
+        <h3 style="margin-top:0">1. Depoyu klonlayın</h3>
+<pre><code>git clone https://github.com/bahadirmkl/LungScan-AI.git
+cd LungScan-AI
+python -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install -r requirements.txt</code></pre>
+        <p class="sub" style="font-size:14px;margin:0">
+          Proje Python 3.10–3.11 ile geliştirilmiştir. Yalnızca notebook'ları inceleyecekseniz
+          TensorFlow kurmak zorunda değilsiniz.
+        </p>
+      </div>
+
+      <div>
+        <h3 style="margin-top:0">2. Model ağırlıklarını indirin</h3>
+<pre><code><span class="c"># v1.0.0 sürümündeki ağırlıklar</span>
+BASE=https://github.com/bahadirmkl/LungScan-AI/releases/download/v1.0.0
+curl -L -o app/best.pt          "$BASE/best.pt"
+curl -L -o app/model_in_5_1.h5 "$BASE/model_in_5_1.h5"</code></pre>
+        <p class="sub" style="font-size:14px;margin:0">
+          Doğrulama: <code>shasum -a 256 app/best.pt</code> →
+          <span class="mono">9ef3dfbc…742d2</span>
+        </p>
+      </div>
+    </div>
+
+    <h3>3. Arayüzü çalıştırın</h3>
+<pre><code>cd app
+python lungscan_gui.py</code></pre>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Adım</th><th>Ne yapar</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>Start Process</b></td><td>DICOM serisini <span class="mono">InstanceNumber</span> sırasına dizer, verilen indeks aralığındaki kesitleri PNG'ye çevirir.</td></tr>
+          <tr><td><b>Start Prediction</b></td><td>Kesitleri sınıflandırır, anormal olanları segmente eder, sonuçları birleştirir ve DICOM'a geri dönüştürür.</td></tr>
+          <tr><td><b>View Result</b></td><td>Üretilen DICOM serisini dahili görüntüleyicide açar (fare tekerleğiyle dilimler arasında gezinilir).</td></tr>
+          <tr><td><b>Restart</b></td><td>Ara klasörleri temizleyerek başlangıç durumuna döner.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Beklenen çalışma klasörü</h3>
+<pre><code>&lt;WORK_DIR&gt;/
+├── kaynak_klasor/      <span class="c"># ham DICOM serisi (girdi)</span>
+├── hedef_klas/         <span class="c"># DICOM → PNG çıktısı</span>
+├── normal/             <span class="c"># sınıflandırıcı: normal kesitler</span>
+├── abnormal/           <span class="c"># sınıflandırıcı: anormal kesitler</span>
+├── segmented/          <span class="c"># lezyon konturu çizilmiş kesitler</span>
+├── output/             <span class="c"># normal + segmented birleşimi</span>
+└── hasta_sonuclari/    <span class="c"># sonuç DICOM serisi (çıktı)</span></code></pre>
+  </div>
+</section>
+
+<!-- ============================================================ ETIK -->
+<section id="etik">
+  <div class="wrap">
+    <h2><span class="num">06</span>Gizlilik, etik ve sınırlamalar</h2>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>Veri gizliliği</h4>
+        <ul class="clean">
+          <li>Depoda <b>hiçbir hasta verisi, DICOM dosyası veya kişisel sağlık bilgisi bulunmaz.</b></li>
+          <li>Notebook çıktılarındaki örnek kesitler, PACS'ten anonimleştirilerek dışa aktarılmıştır.</li>
+          <li>Model ağırlıkları ve veri kümesi ayrı tutulur.</li>
+          <li>Makale PDF'lerinde hasta adı, protokol numarası veya yakılmış kimlik bilgisi yoktur.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Sınırlamalar</h4>
+        <ul class="clean">
+          <li>Bölme düzeyi <b>kesit</b> bazlıdır; hasta düzeyinde değildir → metrikler iyimser.</li>
+          <li>Tek sınıf: tüm lezyonlar <span class="mono">Cancer</span> başlığı altındadır; lezyon tipi ayrımı yoktur.</li>
+          <li>Etiketler tek bir radyolog tarafından çizilmiştir; gözlemciler arası uyum ölçülmemiştir.</li>
+          <li>Sınıflandırıcı ve segmentasyon modeli farklı veri kümelerinde eğitilmiştir; olasılık kalibrasyonu yapılmamıştır.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note warn">
+      <b>Tıbbi uyarı:</b> Bu yazılım yalnızca akademik araştırma amaçlıdır ve bir klinik teşhis
+      aracı değildir. Hiçbir tıbbi karar bu sistemin çıktısına dayandırılmamalıdır. Ayrıntılı yasal
+      ve etik uyarı için <a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/DISCLAIMER.md">DISCLAIMER.md</a>
+      dosyasına bakın.
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap row">
+    <div>
+      <b style="color:var(--text)">LungScan</b> — Akdeniz Üniversitesi bitirme projesi ·
+      <a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/LICENSE">MIT</a> © 2024 İhsan Bahadır Emekli
+    </div>
+    <div class="links">
+      <a href="https://github.com/bahadirmkl/LungScan-AI">GitHub</a>
+      <a href="https://github.com/bahadirmkl/LungScan-AI/releases">Releases</a>
+      <a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/DISCLAIMER.md">Disclaimer</a>
+      <a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/CITATION.cff">Atıf</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
