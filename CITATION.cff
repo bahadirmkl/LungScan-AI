@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "Bu yazılımı akademik çalışmanızda kullanırsanız aşağıdaki şekilde atıf yapın."
+title: "LungScan-AI: Akciğer BT Kesitlerinde Kanserli Lezyon Tespiti ve Segmentasyonu"
+abstract: >-
+  Toraks bilgisayarlı tomografi (BT) kesitlerinde kanserli lezyonun otomatik
+  tespiti ve segmentasyonu için uçtan uca bir derin öğrenme hattı. Keras tabanlı
+  bir sınıflandırıcı ile kesitler normal/anormal olarak ayrılır, anormal
+  kesitlerde YOLOv8m-seg modeli ile lezyon bölgesi segmente edilir ve sonuçlar
+  DICOM formatında üretilir.
+authors:
+  - family-names: "Emekli"
+    given-names: "İhsan Bahadır"
+    alias: "bahadirmkl"
+type: software
+license: MIT
+version: "1.0.0"
+date-released: "2026-10-18"
+keywords:
+  - "akciğer kanseri"
+  - "lung cancer"
+  - "BT"
+  - "CT"
+  - "segmentasyon"
+  - "segmentation"
+  - "YOLOv8"
+  - "DICOM"
+  - "derin öğrenme"
+  - "deep learning"
+  - "medikal görüntü işleme"
+  - "medical image analysis"
+repository-code: "https://github.com/bahadirmkl/LungScan-AI"

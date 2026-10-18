@@ -1,0 +1,65 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ---- Sanal ortamlar ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+profile_default/
+ipython_config.py
+
+# ---- Model agirliklari (GitHub Releases uzerinden dagitilir) ----
+*.h5
+*.pt
+*.pkl
+*.onnx
+*.tflite
+*.pb
+
+# ---- Veri kumeleri ve tibbi veri (ASLA commit edilmemeli) ----
+data/
+datasets/
+*.dcm
+*.dicom
+DICOM/
+kaynak_klasor/
+hedef_klas/
+hasta_sonuclari/
+normal/
+abnormal/
+segmented/
+output/
+*.xlsx
+
+# ---- Egitim ciktilari ----
+runs/
+wandb/
+events.out.tfevents.*
+
+# ---- Isletim sistemi ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- IDE ----
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---- Kendi sonuc klasorlerimiz istisnadir ----
+!results/
+!results/**

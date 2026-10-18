@@ -1,0 +1,25 @@
+# LungScan - YOLOv8 segmentasyon veri kumesi tanimi
+#
+# `path` veri kumesinin kok klasorudur. Egitimden once bu degeri kendi
+# veri kumesi konumunuza gore guncelleyin (veya mutlak yol verin).
+#
+# Beklenen klasor duzeni:
+#   <path>/
+#   ├── images/
+#   │   ├── train/     (789 kesit, .png)
+#   │   └── val/       (198 kesit, .png)
+#   └── labels/
+#       ├── train/     (.txt, YOLO polygon formati)
+#       └── val/
+#
+# Etiket formati (YOLO segmentation):
+#   <class> <x1> <y1> <x2> <y2> ... <xn> <yn>
+#   koordinatlar 0-1 araliginda normalize edilmistir.
+
+path: ./all_info
+train: images/train
+val: images/val
+
+# Sinif sayisi ve isimleri
+nc: 1
+names: ['Cancer']
