@@ -63,3 +63,6 @@ desktop.ini
 # ---- Kendi sonuc klasorlerimiz istisnadir ----
 !results/
 !results/**
+
+# ---- macOS ----
+results/.DS_Store
