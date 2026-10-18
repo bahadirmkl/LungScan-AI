@@ -22,6 +22,7 @@ tekrar DICOM formatında üreten uçtan uca bir çalışma hattıdır.
 - [Kurulum](#kurulum)
 - [Model Ağırlıkları](#model-ağırlıkları)
 - [Kullanım](#kullanım)
+- [Testler](#testler)
 - [Veri Kümesi](#veri-kümesi)
 - [Sonuçlar](#sonuçlar)
   - [Örnek Çıktılar](#örnek-çıktılar)
@@ -89,7 +90,8 @@ LungScan-AI/
 │   ├── lungscan_gui.py                  # Nihai Tkinter arayüzü (uçtan uca hat)
 │   ├── run_lungscan.bat                 # Windows başlatıcı
 │   └── legacy/
-│       └── lungscan_gui_v1.py           # Arayüzün önceki sürümü (arşiv)
+│       ├── lungscan_gui_v2.py           # Makalede gösterilen sürüm (arşiv)
+│       └── lungscan_gui_v1.py           # İlk sürüm (arşiv)
 ├── notebooks/
 │   ├── 01_veri_hazirlama.ipynb              # DICOM → PNG, etiket → maske → YOLO etiketi
 │   ├── 02_siniflandirma_vgg16.ipynb         # VGG16 transfer öğrenmesi (6 varyant)
@@ -123,6 +125,8 @@ LungScan-AI/
 ├── docs/
 │   ├── images/                          # Akış şeması ve örnek çıktılar
 │   └── makale/                          # Bitirme projesi makalesi (TR + EN PDF)
+├── tests/
+│   └── test_dicom_katmani.py            # DICOM katmanı testleri (veri güvenliği)
 ├── requirements.txt
 ├── CITATION.cff                         # Akademik atıf bilgisi
 ├── DISCLAIMER.md                        # Yasal ve etik uyarı
@@ -184,14 +188,21 @@ cd app
 python lungscan_gui.py
 ```
 
-Arayüz altı adımı sırayla yürütür:
+Arayüz dört adımı sırayla yürütür:
 
-1. **Start Process** – DICOM serisini temizler, verilen indeks aralığındaki kesitleri PNG'ye çevirir.
+1. **Start Process** – Kaynak klasördeki DICOM serisini `InstanceNumber`'a göre sıralar ve
+   verilen indeks aralığındaki kesitleri PNG'ye çevirir.
 2. **Start Prediction** – Kesitleri sınıflandırır, anormal olanları segmente eder,
    sonuçları birleştirir ve tekrar DICOM'a dönüştürür.
 3. **View Result** – Üretilen DICOM serisini dahili görüntüleyicide açar
-   (fare tekerleğiyle dilimler arasında gezinilir).
-4. **Restart** – Ara klasörleri temizleyerek başlangıç durumuna döner.
+   (fare tekerleği veya ok tuşlarıyla dilimler arasında gezinilir).
+4. **Restart** – Ara klasörleri temizler; **kaynak klasöre dokunmaz.**
+
+> **Kaynak veri korunur.** Arayüz `kaynak_klasor/` içine hiçbir zaman yazmaz,
+> oradan hiçbir dosyayı silmez. Aralık dışındaki kesitler yalnızca işlenmez.
+> Böylece akış, veriyi yeniden kopyalamaya gerek kalmadan tekrar çalıştırılabilir.
+> Geçersiz bir indeks aralığı (ör. başlangıç > bitiş) veri kaybına yol açmaz;
+> işlem başlamadan hata mesajıyla reddedilir.
 
 ### Çalışma klasörü
 
@@ -215,6 +226,29 @@ Beklenen klasör yapısı:
 ├── output/             # normal + segmented birleşimi
 └── hasta_sonuclari/    # sonuç DICOM serisi (çıktı)
 ```
+
+## Testler
+
+Arayüzün veri güvenliği açısından kritik davranışları `tests/test_dicom_katmani.py`
+ile sınanır. Testler yalnızca `numpy`, `pillow` ve `pydicom` gerektirir; TensorFlow,
+OpenCV ve Ultralytics taklit edilir, dolayısıyla model ağırlıkları olmadan çalışır:
+
+```bash
+python tests/test_dicom_katmani.py
+```
+
+Kapsanan davranışlar:
+
+| Kontrol | Neyi güvence altına alır |
+|---|---|
+| Kaynak klasör bütünlüğü | Hiçbir işlem kaynak klasördeki dosyayı değiştirmez veya silmez |
+| Geçersiz indeks aralığı | Ters/negatif/aralık dışı girdiler veri kaybı yerine hata verir |
+| DICOM olmayan dosyalar | `.DS_Store`, `Thumbs.db` gibi dosyalar taranırken atlanır |
+| `Rows` / `Columns` | Kare olmayan görüntülerde bile doğru yazılır |
+| DICOM kimlikleri | Her çalıştırmada yeni `SeriesInstanceUID` / `SOPInstanceUID` üretilir |
+| RGB geçişi | `PlanarConfiguration`, `SamplesPerPixel` doğru; monokrom pencereleme alanları temizlenir |
+| Kaynak referansı | `SourceImageSequence` ile izlenebilirlik korunur |
+| Eksik model / boş klasör | Anlaşılır hata mesajı verilir, sessiz başarısızlık olmaz |
 
 ## Veri Kümesi
 

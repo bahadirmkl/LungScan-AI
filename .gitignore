@@ -49,6 +49,9 @@ runs/
 wandb/
 events.out.tfevents.*
 
+# ---- Arayuz gunluk dosyasi ----
+lungscan.log
+
 # ---- Isletim sistemi ----
 .DS_Store
 Thumbs.db
