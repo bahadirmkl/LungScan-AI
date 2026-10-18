@@ -25,6 +25,7 @@ tekrar DICOM formatında üreten uçtan uca bir çalışma hattıdır.
 - [Veri Kümesi](#veri-kümesi)
 - [Sonuçlar](#sonuçlar)
   - [Örnek Çıktılar](#örnek-çıktılar)
+- [Makale](#makale)
 - [Notebook Rehberi](#notebook-rehberi)
 - [Gizlilik ve Etik Not](#gizlilik-ve-etik-not)
 - [Lisans](#lisans)
@@ -38,7 +39,7 @@ zaman alıcıdır. LungScan, bu süreci iki aşamalı bir derin öğrenme hattı
 
 | Aşama | Görev | Model |
 |---|---|---|
-| 1 | Kesit sınıflandırma (normal / anormal) | Keras CNN (`model_in_5_1.h5`) |
+| 1 | Kesit sınıflandırma (normal / anormal) | InceptionV3 tabanlı CNN (`model_in_5_1.h5`) |
 | 2 | Lezyon segmentasyonu | YOLOv8m-seg (`best.pt`) |
 
 Sınıflandırma aşaması, incelenecek kesit sayısını ciddi biçimde azaltır; segmentasyon aşaması ise
@@ -90,23 +91,23 @@ LungScan-AI/
 │   └── legacy/
 │       └── lungscan_gui_v1.py           # Arayüzün önceki sürümü (arşiv)
 ├── notebooks/
-│   ├── 01_veri_hazirlama.ipynb          # DICOM → PNG, etiket eşleştirme
-│   ├── 02_siniflandirma_cnn.ipynb       # CNN sınıflandırıcı eğitimi (softmax skorları)
-│   ├── 03_siniflandirma_inceptionv3.ipynb
-│   ├── 04_siniflandirma_svm.ipynb       # Klasik makine öğrenmesi karşılaştırması
-│   ├── 05_konfuzyon_matrisi.ipynb       # Değerlendirme metrikleri
-│   ├── 06_segmentasyon_unet.ipynb
-│   ├── 07_segmentasyon_maskrcnn_detectron2.ipynb
-│   ├── 08_segmentasyon_yolov8.ipynb     # ★ Nihai segmentasyon modelinin eğitimi
-│   ├── 09_mask_uretimi.ipynb            # Etiketlerden maske üretimi
-│   ├── 10_ara_kodlar.ipynb              # Yardımcı / deneysel kod parçaları
-│   └── deneyler/                        # Model boyutu karşılaştırması
-│       ├── yolov8n.ipynb
-│       ├── yolov8n_50epoch.ipynb
-│       ├── yolov8m.ipynb
-│       ├── yolov8l.ipynb
-│       ├── yolov8x.ipynb
-│       └── detectron2_maske_uretimi.ipynb
+│   ├── 01_veri_hazirlama.ipynb              # DICOM → PNG, etiket → maske → YOLO etiketi
+│   ├── 02_siniflandirma_vgg16.ipynb         # VGG16 transfer öğrenmesi (6 varyant)
+│   ├── 03_siniflandirma_inceptionv3.ipynb   # ★ Üretim sınıflandırıcısı (model_in_5_1.h5)
+│   ├── 04_degerlendirme_konfuzyon_matrisi.ipynb   # Giriş boyutu ablasyonu + metrikler
+│   ├── 05_segmentasyon_unet.ipynb           # U-Net piksel segmentasyonu
+│   ├── 06_segmentasyon_detectron2.ipynb     # Mask R-CNN (Detectron2)
+│   ├── 07_segmentasyon_yolov8.ipynb         # ★ Üretim segmentasyonu (best.pt)
+│   ├── 08_cikarim_pipeline.ipynb            # Uçtan uca çıkarım hattı (arayüzün prototipi)
+│   └── denemeler/                           # Yöntem denemeleri (üretimde kullanılmaz)
+│       ├── svm_ozellik_cikarimi.ipynb       # VGG16 öznitelikleri + SVM
+│       ├── goruntu_isleme_denemeleri.ipynb  # Otsu, parlak bölge, watershed
+│       └── yolov8_model_karsilastirmasi/    # n → n(50 epoch) → m → l → x
+│           ├── yolov8n.ipynb
+│           ├── yolov8n_50epoch.ipynb
+│           ├── yolov8m.ipynb
+│           ├── yolov8l.ipynb
+│           └── yolov8x.ipynb
 ├── scripts/
 │   ├── annotation_filter.py             # Boş segmentasyonlu etiketleri ayıklar
 │   ├── json_temizleme.ipynb             # COCO JSON temizleme
@@ -120,7 +121,8 @@ LungScan-AI/
 │   ├── train_yolov8m_seg/               # Eğitim eğrileri ve karmaşıklık matrisi
 │   └── val_yolov8m_seg/                 # Doğrulama tahmin görselleri
 ├── docs/
-│   └── images/                          # Akış şeması ve örnek çıktılar
+│   ├── images/                          # Akış şeması ve örnek çıktılar
+│   └── makale/                          # Bitirme projesi makalesi (TR + EN PDF)
 ├── requirements.txt
 ├── CITATION.cff                         # Akademik atıf bilgisi
 ├── DISCLAIMER.md                        # Yasal ve etik uyarı
@@ -171,8 +173,9 @@ shasum -a 256 app/best.pt
 # 9ef3dfbce1694af43a0f07f7152211904209536750f27ea8e0da8304b22742d2
 ```
 
-Ağırlıkları sıfırdan üretmek isterseniz `notebooks/02_siniflandirma_cnn.ipynb` (sınıflandırıcı)
-ve `notebooks/08_segmentasyon_yolov8.ipynb` (segmentasyon) notebook'larını kullanabilirsiniz.
+Ağırlıkları sıfırdan üretmek isterseniz `notebooks/03_siniflandirma_inceptionv3.ipynb`
+(sınıflandırıcı) ve `notebooks/07_segmentasyon_yolov8.ipynb` (segmentasyon)
+notebook'larını kullanabilirsiniz.
 
 ## Kullanım
 
@@ -265,25 +268,55 @@ Sınıflandırma + segmentasyon hattının anonimleştirilmiş BT kesitleri üze
 | ![Örnek 1](docs/images/ornek-tespit-1.png) | ![Örnek 2](docs/images/ornek-tespit-2.png) |
 | ![Örnek 3](docs/images/ornek-tespit-3.png) | ![Örnek 4](docs/images/ornek-tespit-4.png) |
 
+## Makale
+
+Bu çalışmanın bitirme projesi makalesi, Akdeniz Üniversitesi Elektrik-Elektronik Mühendisliği
+Bölümü'nde **Doç. Dr. H. Feza Carlak** danışmanlığında hazırlanmıştır.
+
+**Akciğer Kanser Tanılı Hastalarda Kanserli Doku Tespiti İçin Yapay Zeka Yöntemleri
+Kullanılarak Kanserli Bölgenin Konturlanması**
+
+| Sürüm | Dosya |
+|---|---|
+| Türkçe (özgün) | [`docs/makale/LungScan-Makale-TR.pdf`](docs/makale/LungScan-Makale-TR.pdf) |
+| English (translation) | [`docs/makale/LungScan-Paper-EN.pdf`](docs/makale/LungScan-Paper-EN.pdf) |
+
+> Makalede raporlanan sonuçlar ile bu depodaki notebook çıktıları aynı deneylere aittir.
+> Makale, hakem değerlendirmesinden geçmiş bir yayın değildir; metrikler yalnızca projeye
+> özel veri kümesi üzerinde elde edilmiştir.
+
 ## Notebook Rehberi
 
-Proje boyunca farklı yaklaşımlar denenmiş ve karşılaştırılmıştır:
+Proje boyunca farklı yaklaşımlar denenmiş ve karşılaştırılmıştır. Numaralandırma, veri
+hazırlamadan dağıtıma giden sırayı izler; `★` işaretli iki notebook depodaki model
+ağırlıklarını üretir.
 
-| Yaklaşım | Notebook | Not |
-|---|---|---|
-| Keras CNN | `02_siniflandirma_cnn.ipynb` | Nihai sınıflandırıcının temeli |
-| InceptionV3 | `03_siniflandirma_inceptionv3.ipynb` | Transfer öğrenme denemesi |
-| SVM | `04_siniflandirma_svm.ipynb` | Klasik ML referans noktası |
-| U-Net | `06_segmentasyon_unet.ipynb` | Piksel bazlı segmentasyon |
-| Mask R-CNN | `07_segmentasyon_maskrcnn_detectron2.ipynb` | Detectron2 tabanlı |
-| YOLOv8-seg | `08_segmentasyon_yolov8.ipynb` | ★ Nihai model |
+| # | Notebook | Yaklaşım | Not |
+|---|---|---|---|
+| 01 | [`01_veri_hazirlama`](notebooks/01_veri_hazirlama.ipynb) | — | DICOM → PNG, etiket → maske → YOLO etiketi, train/val ayrımı |
+| 02 | [`02_siniflandirma_vgg16`](notebooks/02_siniflandirma_vgg16.ipynb) | VGG16 + tam bağlı başlık | 6 varyantın karşılaştırması |
+| 03 | [`03_siniflandirma_inceptionv3`](notebooks/03_siniflandirma_inceptionv3.ipynb) | InceptionV3 + ince ayar | ★ Üretim sınıflandırıcısı (`model_in_5_1.h5`) |
+| 04 | [`04_degerlendirme_konfuzyon_matrisi`](notebooks/04_degerlendirme_konfuzyon_matrisi.ipynb) | VGG16 @512² | Giriş boyutu ablasyonu ve karışıklık matrisi |
+| 05 | [`05_segmentasyon_unet`](notebooks/05_segmentasyon_unet.ipynb) | U-Net | Piksel düzeyinde segmentasyon, IoU/Dice |
+| 06 | [`06_segmentasyon_detectron2`](notebooks/06_segmentasyon_detectron2.ipynb) | Mask R-CNN (Detectron2) | İki aşamalı tespit + segmentasyon |
+| 07 | [`07_segmentasyon_yolov8`](notebooks/07_segmentasyon_yolov8.ipynb) | YOLOv8m-seg | ★ Üretim segmentasyonu (`best.pt`) |
+| 08 | [`08_cikarim_pipeline`](notebooks/08_cikarim_pipeline.ipynb) | — | Arayüzün Colab prototipi (uçtan uca hat) |
 
-Model boyutu etkisi `notebooks/deneyler/` altında n→m→l→x sırasıyla karşılaştırılmıştır.
+Model boyutu etkisi
+[`notebooks/denemeler/yolov8_model_karsilastirmasi/`](notebooks/denemeler/yolov8_model_karsilastirmasi/)
+altında n → n(50 epoch) → m → l → x sırasıyla karşılaştırılmıştır. Sonuç: **`yolov8m`**
+doğruluk/hız dengesi açısından en uygun seçimdir.
+
+Üretimde kullanılmayan denemeler (klasik görüntü işleme, SVM öznitelik çıkarımı)
+[`notebooks/denemeler/`](notebooks/denemeler/) altında ayrı tutulur.
 
 ## Gizlilik ve Etik Not
 
 - Bu depoda **hiçbir hasta verisi, DICOM dosyası veya kişisel sağlık bilgisi bulunmaz.**
 - Notebook çıktılarında yer alan örnek kesitler, PACS'ten anonimleştirilerek dışa aktarılmıştır.
+- Makale PDF'lerinde hasta adı, protokol numarası veya yakılmış (burned-in) kimlik bilgisi yoktur;
+  DICOM meta verileri (hasta adı, TCKN, çekim tarihi, kurum bilgisi) dönüştürme sırasında
+  tamamen kaldırılmıştır.
 - Model ağırlıkları ve veri kümesi ayrı tutulur.
 - **Bu yazılım yalnızca akademik araştırma amaçlıdır. Klinik teşhis aracı değildir.**
   Hiçbir tıbbi karar bu sistemin çıktısına dayandırılmamalıdır.
@@ -303,10 +336,11 @@ dosyasına bakın.
 
 **LungScan-AI** is an end-to-end deep learning pipeline for detecting and segmenting
 cancerous lesions in thoracic CT scans. It classifies each slice as *normal* or *abnormal*
-using a Keras CNN, segments the lesion in abnormal slices with YOLOv8m-seg, and writes the
-results back to DICOM format. The repository contains the final application, the full set of
-training/evaluation notebooks (CNN, InceptionV3, SVM, U-Net, Mask R-CNN, YOLOv8-seg), and the
-data preparation scripts used with QuPath annotations.
+using an InceptionV3-based CNN, segments the lesion in abnormal slices with YOLOv8m-seg, and
+writes the results back to DICOM format. The repository contains the final application, the
+full set of training/evaluation notebooks (VGG16, InceptionV3, SVM, U-Net, Mask R-CNN,
+YOLOv8-seg), the data preparation scripts used with QuPath annotations, and the project paper
+(Turkish original + English translation) under `docs/makale/`.
 
 Trained YOLOv8m-seg reaches **0.893 box mAP@50** and **0.838 mask mAP@50** on the validation
 split. Model weights are distributed via GitHub Releases. For academic research only —

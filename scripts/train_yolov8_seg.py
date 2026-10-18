@@ -3,7 +3,7 @@
 """
 YOLOv8m-seg lezyon segmentasyon modelinin egitimi ve degerlendirilmesi.
 
-Bu betik, `notebooks/08_segmentasyon_yolov8.ipynb` dosyasinin calistirilabilir
+Bu betik, `notebooks/07_segmentasyon_yolov8.ipynb` dosyasinin calistirilabilir
 surumudur. Colab'a ozgu hucre sihirleri (`!unzip`, `%cd`, `pip install`) kaldirilmis,
 tum yollar komut satiri argumanlarina baglanmistir.
 
