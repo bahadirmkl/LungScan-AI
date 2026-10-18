@@ -122,7 +122,9 @@ LungScan-AI/
 ├── docs/
 │   └── images/                          # Akış şeması ve örnek çıktılar
 ├── requirements.txt
-└── LICENSE
+├── CITATION.cff                         # Akademik atıf bilgisi
+├── DISCLAIMER.md                        # Yasal ve etik uyarı
+└── LICENSE                              # MIT
 ```
 
 > **Not:** Veri kümesi ve model ağırlıkları, hasta gizliliği ve dosya boyutu nedeniyle
@@ -286,9 +288,14 @@ Model boyutu etkisi `notebooks/deneyler/` altında n→m→l→x sırasıyla kar
 - **Bu yazılım yalnızca akademik araştırma amaçlıdır. Klinik teşhis aracı değildir.**
   Hiçbir tıbbi karar bu sistemin çıktısına dayandırılmamalıdır.
 
+Ayrıntılı yasal ve etik uyarı için: [`DISCLAIMER.md`](DISCLAIMER.md)
+
 ## Lisans
 
 [MIT](LICENSE) © 2024 İhsan Bahadır Emekli
+
+Kod MIT lisansı altındadır. Tıbbi kullanım kısıtları için [`DISCLAIMER.md`](DISCLAIMER.md)
+dosyasına bakın.
 
 ---
 

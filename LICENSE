@@ -19,16 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----------------------------------------------------------------------------
-
-ACADEMIC / MEDICAL DISCLAIMER
-
-This software was developed for academic research purposes as an undergraduate
-graduation project. It is NOT a certified medical device and must NOT be used
-for clinical diagnosis, treatment planning, or any medical decision-making.
-All outputs are experimental.
-
-This repository contains no patient data, DICOM files, or personal health
-information. Sample images shown in notebook outputs were anonymized at the
-point of export from the hospital PACS system.
