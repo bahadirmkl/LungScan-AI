@@ -189,8 +189,6 @@
   figure { margin: 0; }
   figure img { width: 100%; height: auto; display: block; border-radius: var(--radius); border: 1px solid var(--border); background: #fff; }
   figcaption { font-size: 13px; color: var(--text-faint); margin-top: 10px; }
-  .scrollbox { max-height: 62vh; overflow: auto; border-radius: var(--radius); border: 1px solid var(--border); background: #fff; }
-  .scrollbox img { border: 0; border-radius: 0; }
   .thumbs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
   .thumbs img { border-radius: var(--radius-sm); border: 1px solid var(--border); width: 100%; display: block; background: #000; }
 
@@ -369,11 +367,11 @@
     </div>
 
     <h3>Projenin özgün akış şeması</h3>
-    <div class="scrollbox">
+    <figure>
       <img src="images/akis-semasi.png" alt="LungScan akış şeması: PACS'ten indirilen hasta verisinden sonuçların görüntülenmesine kadar tüm süreç">
-    </div>
-    <figcaption>Şema, proje geliştirme sürecinde çalışmanın bütününü belgelemek için hazırlanmıştır
-      (kaydırmak için içinde aşağı kaydırın).</figcaption>
+      <figcaption>DICOM serisinden sonuç görüntülemeye kadar yedi adımlı işlem hattı.
+        Kaynak klasör salt okunurdur; arayüz oradan dosya silmez.</figcaption>
+    </figure>
   </div>
 </section>
 

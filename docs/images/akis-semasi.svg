@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="500" viewBox="0 0 1600 500"
+     font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+
+  <defs>
+    <marker id="ok" viewBox="0 0 10 10" refX="9.5" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+    <filter id="golge" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="500" fill="#ffffff"/>
+
+  <!-- ============================ 1. SATIR ============================ -->
+
+  <!-- 1 · PACS / DICOM -->
+  <rect x="30" y="40" width="320" height="130" rx="14" fill="#f8fafc" stroke="#dbe3ee"
+        stroke-width="1.5" filter="url(#golge)"/>
+  <circle cx="62" cy="74" r="16" fill="#64748b"/>
+  <text x="62" y="79.5" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+  <text x="90" y="80" font-size="17.5" font-weight="650" fill="#0f172a">PACS / DICOM serisi</text>
+  <text x="52" y="112" font-size="13.5" fill="#475569">Ham hasta serisi Sectra IDS7'den indirilir;</text>
+  <text x="52" y="132" font-size="13.5" fill="#475569">yalnızca kanserli aralık seçilir.</text>
+  <text x="52" y="156" font-size="12.5" fill="#0ea5e9"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace">kaynak_klasor/</text>
+
+  <!-- 2 · PNG -->
+  <rect x="436" y="40" width="320" height="130" rx="14" fill="#f8fafc" stroke="#dbe3ee"
+        stroke-width="1.5" filter="url(#golge)"/>
+  <circle cx="468" cy="74" r="16" fill="#0ea5e9"/>
+  <text x="468" y="79.5" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+  <text x="496" y="80" font-size="17.5" font-weight="650" fill="#0f172a">PNG kesitleri</text>
+  <text x="458" y="112" font-size="13.5" fill="#475569">Kesitler InstanceNumber'a göre sıralanır,</text>
+  <text x="458" y="132" font-size="13.5" fill="#475569">seçilen indeks aralığı PNG'ye çevrilir.</text>
+  <text x="458" y="156" font-size="12.5" fill="#0ea5e9"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace">hedef_klas/</text>
+
+  <!-- 3 · Sınıflandırma -->
+  <rect x="842" y="40" width="320" height="130" rx="14" fill="#f8fafc" stroke="#dbe3ee"
+        stroke-width="1.5" filter="url(#golge)"/>
+  <circle cx="874" cy="74" r="16" fill="#0ea5e9"/>
+  <text x="874" y="79.5" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+  <text x="902" y="80" font-size="17.5" font-weight="650" fill="#0f172a">Sınıflandırma</text>
+  <text x="864" y="112" font-size="13.5" fill="#475569">InceptionV3 her kesiti normal / anormal</text>
+  <text x="864" y="132" font-size="13.5" fill="#475569">olarak ayırır — doğruluk %99,8.</text>
+  <text x="864" y="156" font-size="12.5" fill="#0ea5e9"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace">model_in_5_1.h5</text>
+
+  <!-- 4 · Segmentasyon -->
+  <rect x="1248" y="40" width="320" height="130" rx="14" fill="#faf5ff" stroke="#e9d5ff"
+        stroke-width="1.5" filter="url(#golge)"/>
+  <circle cx="1280" cy="74" r="16" fill="#8b5cf6"/>
+  <text x="1280" y="79.5" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle">4</text>
+  <text x="1308" y="80" font-size="17.5" font-weight="650" fill="#0f172a">Segmentasyon</text>
+  <text x="1270" y="112" font-size="13.5" fill="#475569">YOLOv8m-seg yalnızca anormal kesitlerde</text>
+  <text x="1270" y="132" font-size="13.5" fill="#475569">lezyon sınırını çizer — %99,0.</text>
+  <text x="1270" y="156" font-size="12.5" fill="#0ea5e9"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace">best.pt</text>
+
+  <!-- 1 -> 2 -> 3 -> 4 -->
+  <line x1="352" y1="105" x2="428" y2="105" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#ok)"/>
+  <line x1="758" y1="105" x2="834" y2="105" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#ok)"/>
+  <line x1="1164" y1="105" x2="1240" y2="105" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#ok)"/>
+
+  <!-- 4 -> 5 dikey -->
+  <line x1="1408" y1="172" x2="1408" y2="288" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#ok)"/>
+  <text x="1422" y="234" font-size="12.5" fill="#64748b">anormal kesitler</text>
+
+  <!-- ============================ 2. SATIR (sağdan sola) =============== -->
+
+  <!-- 5 · Birleştirme -->
+  <rect x="1248" y="294" width="320" height="130" rx="14" fill="#fffbeb" stroke="#fde68a"
+        stroke-width="1.5" filter="url(#golge)"/>
+  <circle cx="1280" cy="328" r="16" fill="#f59e0b"/>
+  <text x="1280" y="333.5" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle">5</text>
+  <text x="1308" y="334" font-size="17.5" font-weight="650" fill="#0f172a">Birleştirme</text>
+  <text x="1270" y="366" font-size="13.5" fill="#475569">Normal ve işaretli kesitler tek seride</text>
+  <text x="1270" y="386" font-size="13.5" fill="#475569">toplanır; hiçbir kesit kaybolmaz.</text>
+  <text x="1270" y="410" font-size="12.5" fill="#0ea5e9"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace">output/</text>
+
+  <!-- 6 · PNG -> DICOM -->
+  <rect x="842" y="294" width="320" height="130" rx="14" fill="#f8fafc" stroke="#dbe3ee"
+        stroke-width="1.5" filter="url(#golge)"/>
+  <circle cx="874" cy="328" r="16" fill="#0ea5e9"/>
+  <text x="874" y="333.5" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle">6</text>
+  <text x="902" y="334" font-size="17.5" font-weight="650" fill="#0f172a">PNG → DICOM</text>
+  <text x="864" y="366" font-size="13.5" fill="#475569">Orijinal meta veriler korunur, yeni</text>
+  <text x="864" y="386" font-size="13.5" fill="#475569">SeriesInstanceUID üretilir.</text>
+  <text x="864" y="410" font-size="12.5" fill="#0ea5e9"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace">hasta_sonuclari/</text>
+
+  <!-- 7 · Görüntüleme -->
+  <rect x="436" y="294" width="320" height="130" rx="14" fill="#f0fdf4" stroke="#bbf7d0"
+        stroke-width="1.5" filter="url(#golge)"/>
+  <circle cx="468" cy="328" r="16" fill="#10b981"/>
+  <text x="468" y="333.5" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle">7</text>
+  <text x="496" y="334" font-size="17.5" font-weight="650" fill="#0f172a">Görüntüleme</text>
+  <text x="458" y="366" font-size="13.5" fill="#475569">Dahili DICOM görüntüleyici;</text>
+  <text x="458" y="386" font-size="13.5" fill="#475569">tekerlek veya ok tuşlarıyla gezinilir.</text>
+  <text x="458" y="410" font-size="12.5" fill="#10b981"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace">View Result</text>
+
+  <!-- 5 -> 6 -> 7 (sağdan sola) -->
+  <line x1="1244" y1="359" x2="1170" y2="359" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#ok)"/>
+  <line x1="838" y1="359" x2="764" y2="359" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#ok)"/>
+
+  <!-- Not kutusu -->
+  <rect x="30" y="294" width="320" height="130" rx="14" fill="#ecfdf5" stroke="#a7f3d0"
+        stroke-width="1.5" stroke-dasharray="7 5"/>
+  <path d="M 62 315 l 13 5 v 9 c 0 9 -6 15 -13 18 c -7 -3 -13 -9 -13 -18 v -9 z"
+        fill="none" stroke="#059669" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M 56 329 l 4.5 4.5 l 8 -8" fill="none" stroke="#059669" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="90" y="334" font-size="17.5" font-weight="650" fill="#065f46">Kaynak veri korunur</text>
+  <text x="52" y="368" font-size="13.5" fill="#065f46">Arayüz kaynak klasöre yazmaz ve oradan</text>
+  <text x="52" y="388" font-size="13.5" fill="#065f46">dosya silmez. Aralık dışı kesitler</text>
+  <text x="52" y="408" font-size="13.5" fill="#065f46">yalnızca işlenmez.</text>
+
+</svg>
