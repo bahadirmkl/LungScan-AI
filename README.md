@@ -126,7 +126,8 @@ LungScan-AI/
 │   ├── images/                          # Akış şeması ve örnek çıktılar
 │   └── makale/                          # Bitirme projesi makalesi (TR + EN PDF)
 ├── tests/
-│   └── test_dicom_katmani.py            # DICOM katmanı testleri (veri güvenliği)
+│   ├── test_dicom_katmani.py            # DICOM katmanı testleri (veri güvenliği)
+│   └── sentetik_dicom_uret.py           # Gerçek veri olmadan denemek için fantom seri
 ├── requirements.txt
 ├── CITATION.cff                         # Akademik atıf bilgisi
 ├── DISCLAIMER.md                        # Yasal ve etik uyarı
@@ -146,6 +147,12 @@ pip install -r requirements.txt
 ```
 
 Proje Python 3.10–3.11 ile geliştirilmiştir.
+
+> **Keras uyumluluğu:** `model_in_5_1.h5` Keras 2 ile kaydedilmiştir.
+> TensorFlow 2.16+ (Keras 3) bu eski `.h5` dosyasını doğrudan okuyamadığı için
+> `requirements.txt` içinde `tf-keras` uyumluluk paketi bulunur; arayüz
+> `TF_USE_LEGACY_KERAS=1` değişkenini kendisi ayarlar. TensorFlow 2.15 veya
+> daha eski bir sürüm kullanıyorsanız bu pakete gerek yoktur.
 
 > **Apple Silicon (M serisi) notu:** TensorFlow için
 > `pip install tensorflow-macos` gerekebilir. Yalnızca notebook'ları inceleyecekseniz
@@ -226,6 +233,21 @@ Beklenen klasör yapısı:
 ├── output/             # normal + segmented birleşimi
 └── hasta_sonuclari/    # sonuç DICOM serisi (çıktı)
 ```
+
+### Sentetik veriyle hızlı deneme
+
+Elinizde DICOM serisi yoksa, boru hattını denemek için sentetik bir fantom üretilebilir:
+
+```bash
+python tests/sentetik_dicom_uret.py --output app/kaynak_klasor --clean
+cd app && python lungscan_gui.py
+```
+
+Betik varsayılan olarak 40 kesit üretir; bunların 8'i yapay bir lezyon içerir
+(`--slices`, `--lesion-slices` ve `--seed` ile değiştirilebilir). Görüntüler
+anatomik olarak gerçek değildir: amaç DICOM → PNG → sınıflandırma → segmentasyon →
+DICOM → görüntüleme zincirinin uçtan uca çalıştığını doğrulamaktır. Model
+tahminleri bu fantom üzerinde **klinik bir anlam taşımaz**.
 
 ## Testler
 

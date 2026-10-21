@@ -10,6 +10,7 @@ pydicom>=2.4
 
 # --- Derin ogrenme ---
 tensorflow>=2.13          # Apple Silicon icin: tensorflow-macos
+tf-keras>=2.13            # Keras 2 ile kaydedilmis .h5 modelleri icin uyumluluk katmani
 h5py>=3.9
 ultralytics>=8.0          # YOLOv8
 

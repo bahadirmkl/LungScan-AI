@@ -66,6 +66,12 @@ import pydicom
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import ExplicitVRLittleEndian, SecondaryCaptureImageStorage, generate_uid
 
+# Model dosyası (model_in_5_1.h5) Keras 2 ile kaydedilmiştir. TensorFlow 2.16+
+# ile gelen Keras 3 bu eski .h5 dosyalarını okuyamadığı için, kuruluysa
+# uyumluluk katmanı (tf-keras paketi) kullanılır. Bu satır tensorflow
+# içe aktarılmadan **önce** çalışmalıdır.
+os.environ.setdefault("TF_USE_LEGACY_KERAS", "1")
+
 import tensorflow as tf
 from PIL import Image, ImageTk
 from ultralytics import YOLO
@@ -570,7 +576,18 @@ def load_classifier(model_path: Path) -> tuple[tf.keras.Model, str]:
         )
 
     logger.info("Sınıflandırıcı yükleniyor: %s", model_path.name)
-    model = tf.keras.models.load_model(str(model_path))
+    try:
+        model = tf.keras.models.load_model(str(model_path))
+    except (TypeError, ValueError, OSError) as error:
+        logger.exception("Sınıflandırıcı yüklenemedi.")
+        raise LungScanError(
+            f"Sınıflandırıcı yüklenemedi:\n{model_path.name}\n\n"
+            f"{error}\n\n"
+            "Bu model Keras 2 ile kaydedilmiştir. TensorFlow 2.16+ (Keras 3) "
+            "kullanıyorsanız uyumluluk katmanını kurun:\n\n"
+            "    pip install tf-keras\n\n"
+            "Arayüz bu katmanı otomatik olarak etkinleştirir."
+        ) from error
 
     shape = model.output_shape
     if isinstance(shape, list):
