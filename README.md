@@ -25,7 +25,6 @@ tekrar DICOM formatında üreten uçtan uca bir çalışma hattıdır.
 - [Testler](#testler)
 - [Veri Kümesi](#veri-kümesi)
 - [Sonuçlar](#sonuçlar)
-  - [Örnek Çıktılar](#örnek-çıktılar)
 - [Makale](#makale)
 - [Notebook Rehberi](#notebook-rehberi)
 - [Gizlilik ve Etik Not](#gizlilik-ve-etik-not)
@@ -45,6 +44,11 @@ zaman alıcıdır. LungScan, bu süreci iki aşamalı bir derin öğrenme hattı
 
 Sınıflandırma aşaması, incelenecek kesit sayısını ciddi biçimde azaltır; segmentasyon aşaması ise
 yalnızca anormal bulunan kesitlerde çalışarak lezyonun sınırını görünür hale getirir.
+
+![Normal ve anormal kesitler için sınıflandırma tahminleri (makale, Şekil 7)](docs/images/makale/sekil-07-siniflandirma-tahminleri.jpg)
+
+*Şekil 7 — Sınıflandırma aşamasının çıktısı: anonimleştirilmiş kesitler üzerinde
+normal/anormal tahminleri.*
 
 ## Sistem Mimarisi
 
@@ -81,6 +85,11 @@ Bileşen düzeyindeki akış:
            ▼
    hasta_sonuclari/  ──(6)──►  Dahili DICOM görüntüleyici
 ```
+
+![Segmentasyon çıktısı: tahmin edilen konturlar, gerçek maske ve tahmin maskesi (makale, Şekil 10)](docs/images/makale/sekil-10-konturlar-ve-maskeler.jpg)
+
+*Şekil 10 — Segmentasyon aşamasının çıktısı: (a) tahmin edilen konturlar, (b) gerçek maske,
+(c) tahmin edilen maske.*
 
 ## Depo Yapısı
 
@@ -311,50 +320,31 @@ tek sınıf. Eğitim parametrelerinin tamamı `results/train_yolov8m_seg/args.ya
 | Box (tespit) | 0.894 | 0.807 | 0.893 | 0.576 |
 | Mask (segmentasyon) | 0.861 | 0.773 | 0.838 | 0.472 |
 
-![Eğitim eğrileri](results/train_yolov8m_seg/results.png)
+![Konturların IoU değerleri (makale, Şekil 11)](docs/images/makale/sekil-11-iou-degerleri.jpg)
 
-Ayrıntılı eğriler, karmaşıklık matrisi ve doğrulama tahminleri için
-[`results/`](results/) klasörüne bakın.
+*Şekil 11 — Doğrulama kümesinde tahmin edilen konturların IoU değerleri.*
+
+YOLOv8m-seg eğitim/doğrulama eğrilerinin ham Ultralytics çıktıları, karmaşıklık matrisi ve
+doğrulama tahminleri için [`results/`](results/) klasörüne bakın.
 
 Proje sunumunda raporlanan uçtan uca başarı oranları: sınıflandırma modeli **%99.8**,
 lezyon tespiti **%99.0**. Bu değerler projeye özel veri kümesi üzerinde elde edilmiştir
 ve genelleme performansı hakkında bilgi vermez.
 
-### Makaledeki sonuç görselleri
+### Sınıflandırma modeli (makaleden)
 
-Aşağıdaki şekiller bitirme raporundan (`docs/makale/LungScan-Makale-TR.pdf`) alınmıştır.
+Bitirme raporunda raporlanan karışıklık matrisi ve sınıflandırma raporu:
 
-**Sınıflandırma modeli**
+![Karışıklık matrisi ve sınıflandırma raporu (makale, Şekil 6)](docs/images/makale/sekil-06-siniflandirma-metrikleri.png)
 
-| ![Şekil 6](docs/images/makale/sekil-06-siniflandirma-metrikleri.png) | ![Şekil 7](docs/images/makale/sekil-07-siniflandirma-tahminleri.jpg) |
-|---|---|
-| *Şekil 6 — Karışıklık matrisi ve sınıflandırma raporu (1.214 kesit; 597 anormal / 614 normal).* | *Şekil 7 — Normal ve anormal kesitler için model tahminleri.* |
+*Şekil 6 — 1.214 kesit üzerinde karışıklık matrisi ve sınıflandırma raporu
+(597 anormal / 614 normal).*
+
+Sınıflandırıcının eğitim ve doğrulama eğrileri:
 
 | ![Şekil 8](docs/images/makale/sekil-08-egitim-kaybi.png) | ![Şekil 9](docs/images/makale/sekil-09-egitim-dogrulugu.png) |
 |---|---|
 | *Şekil 8 — Eğitim ve doğrulama kaybı.* | *Şekil 9 — Eğitim ve doğrulama doğruluğu.* |
-
-**Segmentasyon modeli**
-
-| ![Şekil 10](docs/images/makale/sekil-10-konturlar-ve-maskeler.jpg) | ![Şekil 11](docs/images/makale/sekil-11-iou-degerleri.jpg) |
-|---|---|
-| *Şekil 10 — (a) tahmin edilen konturlar, (b) gerçek maske, (c) tahmin edilen maske.* | *Şekil 11 — Konturların IoU değerleri.* |
-
-**Klasik görüntü işleme karşılaştırması**
-
-![Şekil 4](docs/images/makale/sekil-04-otsu-esikleme.jpg)
-
-*Şekil 4 — (a) filtrelenmiş görüntü, (b) Otsu eşikleme ile çıkarılan akciğer alanı.*
-
-### Örnek Çıktılar
-
-Sınıflandırma + segmentasyon hattının anonimleştirilmiş BT kesitleri üzerindeki
-çıktıları (yeşil kutu: tespit edilen lezyon ve güven skoru):
-
-| | |
-|---|---|
-| ![Örnek 1](docs/images/ornek-tespit-1.png) | ![Örnek 2](docs/images/ornek-tespit-2.png) |
-| ![Örnek 3](docs/images/ornek-tespit-3.png) | ![Örnek 4](docs/images/ornek-tespit-4.png) |
 
 ## Makale
 
@@ -397,6 +387,11 @@ doğruluk/hız dengesi açısından en uygun seçimdir.
 
 Üretimde kullanılmayan denemeler (klasik görüntü işleme, SVM öznitelik çıkarımı)
 [`notebooks/denemeler/`](notebooks/denemeler/) altında ayrı tutulur.
+
+![Klasik yaklaşım denemesi: filtrelenmiş görüntü ve Otsu eşikleme (makale, Şekil 4)](docs/images/makale/sekil-04-otsu-esikleme.jpg)
+
+*Şekil 4 — Klasik yaklaşım denemelerinden biri: (a) filtrelenmiş görüntü, (b) Otsu eşikleme
+ile çıkarılan akciğer alanı.*
 
 ## Gizlilik ve Etik Not
 

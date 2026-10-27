@@ -372,6 +372,18 @@
       <figcaption>DICOM serisinden sonuç görüntülemeye kadar yedi adımlı işlem hattı.
         Kaynak klasör salt okunurdur; arayüz oradan dosya silmez.</figcaption>
     </figure>
+
+    <div class="grid g2" style="margin-top:28px">
+      <figure>
+        <img src="images/makale/sekil-07-siniflandirma-tahminleri.jpg" alt="Normal ve anormal kesitler için sınıflandırma tahminleri">
+        <figcaption>Şekil 7 — Sınıflandırma aşamasının çıktısı: normal/anormal tahminleri.</figcaption>
+      </figure>
+      <figure>
+        <img src="images/makale/sekil-10-konturlar-ve-maskeler.jpg" alt="Tahmin edilen konturlar, gerçek maske ve tahmin edilen maske">
+        <figcaption>Şekil 10 — Segmentasyon çıktısı: (a) tahmin edilen konturlar,
+          (b) gerçek maske, (c) tahmin edilen maske.</figcaption>
+      </figure>
+    </div>
   </div>
 </section>
 
@@ -414,10 +426,28 @@
     </div>
 
     <figure>
-      <img src="images/egitim-egrileri.png" alt="YOLOv8m-seg eğitim ve doğrulama kayıp/doğruluk eğrileri">
-      <figcaption>Kayıp, kesinlik, duyarlılık ve mAP eğrileri (100 epoch). Ayrıntılı eğriler ve
-        epoch bazında metrikler <code>results/</code> klasöründedir.</figcaption>
+      <img src="images/makale/sekil-11-iou-degerleri.jpg" alt="Konturların IoU değerleri">
+      <figcaption>Şekil 11 — Doğrulama kümesinde tahmin edilen konturların IoU değerleri.
+        Eğitim eğrilerinin ham çıktıları ve karmaşıklık matrisi <code>results/</code>
+        klasöründedir.</figcaption>
     </figure>
+
+    <h3>Sınıflandırma modeli (makale)</h3>
+    <figure>
+      <img src="images/makale/sekil-06-siniflandirma-metrikleri.png" alt="Sınıflandırma modelinin karışıklık matrisi ve sınıflandırma raporu">
+      <figcaption>Şekil 6 — Karışıklık matrisi ve sınıflandırma raporu (1.214 kesit;
+        597 anormal / 614 normal).</figcaption>
+    </figure>
+    <div class="grid g2">
+      <figure>
+        <img src="images/makale/sekil-08-egitim-kaybi.png" alt="Eğitim ve doğrulama kaybı grafiği">
+        <figcaption>Şekil 8 — Eğitim ve doğrulama kaybı.</figcaption>
+      </figure>
+      <figure>
+        <img src="images/makale/sekil-09-egitim-dogrulugu.png" alt="Eğitim ve doğrulama doğruluk grafiği">
+        <figcaption>Şekil 9 — Eğitim ve doğrulama doğruluğu.</figcaption>
+      </figure>
+    </div>
 
     <div class="grid g2" style="margin-top:28px">
       <figure>
@@ -430,51 +460,6 @@
         <figcaption>Doğrulama batch'inden tahminler. Dosya adları anonimleştirilmiş hasta
           kimlikleridir; hiçbir hasta bilgisi yayımlanmamıştır.</figcaption>
       </figure>
-    </div>
-
-    <h3>Makaledeki sonuç görselleri</h3>
-    <p class="sub" style="margin-bottom:18px">
-      Sınıflandırma ve segmentasyon modellerinin bitirme raporundaki şekilleri (Şekil 6-11).
-    </p>
-    <div class="grid g2">
-      <figure>
-        <img src="images/makale/sekil-06-siniflandirma-metrikleri.png" alt="Sınıflandırma modelinin karışıklık matrisi ve sınıflandırma raporu">
-        <figcaption>Şekil 6 — Karışıklık matrisi ve sınıflandırma raporu (1.214 kesit;
-          597 anormal / 614 normal).</figcaption>
-      </figure>
-      <figure>
-        <img src="images/makale/sekil-07-siniflandirma-tahminleri.jpg" alt="Normal ve anormal kesitler için model tahminleri">
-        <figcaption>Şekil 7 — Sınıflandırma modelinin normal/anormal tahminleri.</figcaption>
-      </figure>
-      <figure>
-        <img src="images/makale/sekil-08-egitim-kaybi.png" alt="Eğitim ve doğrulama kaybı grafiği">
-        <figcaption>Şekil 8 — Eğitim ve doğrulama kaybı.</figcaption>
-      </figure>
-      <figure>
-        <img src="images/makale/sekil-09-egitim-dogrulugu.png" alt="Eğitim ve doğrulama doğruluk grafiği">
-        <figcaption>Şekil 9 — Eğitim ve doğrulama doğruluğu.</figcaption>
-      </figure>
-      <figure>
-        <img src="images/makale/sekil-10-konturlar-ve-maskeler.jpg" alt="Tahmin edilen konturlar, gerçek maske ve tahmin edilen maske">
-        <figcaption>Şekil 10 — (a) tahmin edilen konturlar, (b) gerçek maske,
-          (c) tahmin edilen maske.</figcaption>
-      </figure>
-      <figure>
-        <img src="images/makale/sekil-11-iou-degerleri.jpg" alt="Konturların IoU değerleri">
-        <figcaption>Şekil 11 — Konturların IoU değerleri.</figcaption>
-      </figure>
-    </div>
-
-    <h3>Örnek çıktılar</h3>
-    <p class="sub" style="margin-bottom:18px">
-      Sınıflandırma + segmentasyon hattının anonimleştirilmiş PET/CT kesitleri üzerindeki çıktıları
-      (yeşil kutu: tespit edilen lezyon ve güven skoru).
-    </p>
-    <div class="thumbs">
-      <img src="images/ornek-tespit-1.png" alt="Örnek tespit 1">
-      <img src="images/ornek-tespit-2.png" alt="Örnek tespit 2">
-      <img src="images/ornek-tespit-3.png" alt="Örnek tespit 3">
-      <img src="images/ornek-tespit-4.png" alt="Örnek tespit 4">
     </div>
 
     <div class="note">
@@ -541,6 +526,12 @@
            tanımlandığıdır.</p>
       </div>
     </div>
+
+    <figure>
+      <img src="images/makale/sekil-04-otsu-esikleme.jpg" alt="Klasik yaklaşım denemesi: filtrelenmiş görüntü ve Otsu eşikleme">
+      <figcaption>Şekil 4 — Klasik yaklaşım denemesi: (a) filtrelenmiş görüntü,
+        (b) Otsu eşikleme ile çıkarılan akciğer alanı.</figcaption>
+    </figure>
   </div>
 </section>
 
