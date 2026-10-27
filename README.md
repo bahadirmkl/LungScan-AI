@@ -123,7 +123,8 @@ LungScan-AI/
 │   ├── train_yolov8m_seg/               # Eğitim eğrileri ve karmaşıklık matrisi
 │   └── val_yolov8m_seg/                 # Doğrulama tahmin görselleri
 ├── docs/
-│   ├── images/                          # Akış şeması ve örnek çıktılar
+│   ├── images/                          # Akış şeması, örnek çıktılar
+│   │   └── makale/                      # Makaledeki şekiller (Şekil 4-11)
 │   └── makale/                          # Bitirme projesi makalesi (TR + EN PDF)
 ├── tests/
 │   ├── test_dicom_katmani.py            # DICOM katmanı testleri (veri güvenliği)
@@ -204,6 +205,11 @@ Arayüz dört adımı sırayla yürütür:
 3. **View Result** – Üretilen DICOM serisini dahili görüntüleyicide açar
    (fare tekerleği veya ok tuşlarıyla dilimler arasında gezinilir).
 4. **Restart** – Ara klasörleri temizler; **kaynak klasöre dokunmaz.**
+
+![LungScan arayüzü: DICOM Processor ve dahili DICOM görüntüleyici](docs/images/makale/sekil-05-gui.jpg)
+
+*Arayüz (makaledeki Şekil 5): indeks aralığı girilir, dört adım sırayla çalıştırılır ve sonuç
+serisi dahili DICOM görüntüleyicide incelenir.*
 
 > **Kaynak veri korunur.** Arayüz `kaynak_klasor/` içine hiçbir zaman yazmaz,
 > oradan hiçbir dosyayı silmez. Aralık dışındaki kesitler yalnızca işlenmez.
@@ -313,6 +319,32 @@ Ayrıntılı eğriler, karmaşıklık matrisi ve doğrulama tahminleri için
 Proje sunumunda raporlanan uçtan uca başarı oranları: sınıflandırma modeli **%99.8**,
 lezyon tespiti **%99.0**. Bu değerler projeye özel veri kümesi üzerinde elde edilmiştir
 ve genelleme performansı hakkında bilgi vermez.
+
+### Makaledeki sonuç görselleri
+
+Aşağıdaki şekiller bitirme raporundan (`docs/makale/LungScan-Makale-TR.pdf`) alınmıştır.
+
+**Sınıflandırma modeli**
+
+| ![Şekil 6](docs/images/makale/sekil-06-siniflandirma-metrikleri.png) | ![Şekil 7](docs/images/makale/sekil-07-siniflandirma-tahminleri.jpg) |
+|---|---|
+| *Şekil 6 — Karışıklık matrisi ve sınıflandırma raporu (1.214 kesit; 597 anormal / 614 normal).* | *Şekil 7 — Normal ve anormal kesitler için model tahminleri.* |
+
+| ![Şekil 8](docs/images/makale/sekil-08-egitim-kaybi.png) | ![Şekil 9](docs/images/makale/sekil-09-egitim-dogrulugu.png) |
+|---|---|
+| *Şekil 8 — Eğitim ve doğrulama kaybı.* | *Şekil 9 — Eğitim ve doğrulama doğruluğu.* |
+
+**Segmentasyon modeli**
+
+| ![Şekil 10](docs/images/makale/sekil-10-konturlar-ve-maskeler.jpg) | ![Şekil 11](docs/images/makale/sekil-11-iou-degerleri.jpg) |
+|---|---|
+| *Şekil 10 — (a) tahmin edilen konturlar, (b) gerçek maske, (c) tahmin edilen maske.* | *Şekil 11 — Konturların IoU değerleri.* |
+
+**Klasik görüntü işleme karşılaştırması**
+
+![Şekil 4](docs/images/makale/sekil-04-otsu-esikleme.jpg)
+
+*Şekil 4 — (a) filtrelenmiş görüntü, (b) Otsu eşikleme ile çıkarılan akciğer alanı.*
 
 ### Örnek Çıktılar
 
