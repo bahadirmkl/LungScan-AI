@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="272" viewBox="0 0 760 272" role="img" aria-label="LungScan çalışma hattı: DICOM serisinden sonuç görüntülemeye yedi adım">
+  <title>LungScan çalışma hattı</title>
+
+  <defs>
+    <marker id="ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8a8a80"/>
+    </marker>
+  </defs>
+
+  <rect width="760" height="272" fill="#ffffff"/>
+
+  <g font-family="Charter, 'Iowan Old Style', Georgia, serif" fill="#1b1b19">
+    <g stroke="#c9c7bf" stroke-width="1" fill="none">
+      <rect x="14"  y="24" width="168" height="76"/>
+      <rect x="202" y="24" width="168" height="76"/>
+      <rect x="390" y="24" width="168" height="76"/>
+      <rect x="578" y="24" width="168" height="76"/>
+
+      <rect x="578" y="172" width="168" height="76"/>
+      <rect x="390" y="172" width="168" height="76"/>
+      <rect x="202" y="172" width="168" height="76"/>
+    </g>
+
+    <g font-size="15" font-weight="600">
+      <text x="28"  y="55">1 · DICOM serisi</text>
+      <text x="216" y="55">2 · PNG kesitler</text>
+      <text x="404" y="55">3 · Sınıflandırma</text>
+      <text x="592" y="55">4 · Segmentasyon</text>
+
+      <text x="592" y="203">5 · Birleştirme</text>
+      <text x="404" y="203">6 · PNG → DICOM</text>
+      <text x="216" y="203">7 · Görüntüleme</text>
+    </g>
+
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+       font-size="11.5" fill="#6f6f67">
+      <text x="28"  y="80">kaynak_klasor/</text>
+      <text x="216" y="80">hedef_klas/</text>
+      <text x="404" y="80">model_in_5_1.h5</text>
+      <text x="592" y="80">best.pt</text>
+
+      <text x="592" y="228">output/</text>
+      <text x="404" y="228">hasta_sonuclari/</text>
+      <text x="216" y="228">View Result</text>
+    </g>
+  </g>
+
+  <!-- üst sıra: soldan sağa -->
+  <g stroke="#8a8a80" stroke-width="1.2" marker-end="url(#ok)">
+    <line x1="183" y1="62" x2="199" y2="62"/>
+    <line x1="371" y1="62" x2="387" y2="62"/>
+    <line x1="559" y1="62" x2="575" y2="62"/>
+  </g>
+
+  <!-- 4 → 5 -->
+  <line x1="662" y1="101" x2="662" y2="169" stroke="#8a8a80" stroke-width="1.2" marker-end="url(#ok)"/>
+  <text x="652" y="139" text-anchor="end"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="11.5" fill="#6f6f67">anormal kesitler</text>
+
+  <!-- alt sıra: sağdan sola -->
+  <g stroke="#8a8a80" stroke-width="1.2" marker-end="url(#ok)">
+    <line x1="575" y1="210" x2="561" y2="210"/>
+    <line x1="387" y1="210" x2="373" y2="210"/>
+  </g>
+
+  <!-- not -->
+  <text x="14" y="205" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="11.5" fill="#6f6f67">kaynak klasör salt okunurdur:</text>
+  <text x="14" y="222" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="11.5" fill="#6f6f67">arayüz oradan dosya silmez.</text>
+</svg>
