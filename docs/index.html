@@ -7,7 +7,7 @@
 <title>LungScan — Akciğer PET/CT kesitlerinde lezyon tespiti ve konturlama</title>
 <meta name="description" content="PET/CT kesitlerinde kanserli lezyonun otomatik tespiti ve segmentasyonu: InceptionV3 tabanlı sınıflandırma ve YOLOv8m-seg tabanlı konturlama ile uçtan uca bir çalışma hattı. Akdeniz Üniversitesi Elektrik-Elektronik Mühendisliği bitirme projesi.">
 <meta name="author" content="İhsan Bahadır Emekli">
-<meta name="theme-color" content="#fbfaf7">
+<meta name="theme-color" content="#f6f5f1">
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="LungScan — Akciğer PET/CT kesitlerinde lezyon tespiti ve konturlama">
@@ -17,551 +17,434 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="LungScan arayüzü: DICOM işleyici penceresi ve lezyonun konturlandığı PET/CT kesiti (makale Şekil 5).">
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%232b4a6f'/%3E%3Cpath d='M50 22v56M50 40c-6-10-18-14-26-10-6 3-8 10-6 18 3 12 14 24 32 26 18-2 29-14 32-26 2-8 0-15-6-18-8-4-20 0-26 10z' fill='none' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230f5f57'/%3E%3Cpath d='M50 22v56M50 40c-6-10-18-14-26-10-6 3-8 10-6 18 3 12 14 24 32 26 18-2 29-14 32-26 2-8 0-15-6-18-8-4-20 0-26 10z' fill='none' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 
 <style>
   :root {
-    --bg:      #fbfaf7;
-    --ink:     #1b1b19;
-    --muted:   #585852;
-    --faint:   #7d7d75;
-    --rule:    #dcdad2;
-    --rule-lt: #eae8e0;
-    --panel:   #f3f2ec;
-    --link:    #1f4e79;
-    --serif:   "Charter", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-    --sans:    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --mono:    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    --col:     700px;
+    --paper:  #ffffff;
+    --soft:   #f6f5f1;
+    --ink:    #131312;
+    --muted:  #5c5c57;
+    --faint:  #8a8a82;
+    --rule:   #e3e1da;
+    --accent: #0f5f57;
+    --sans:   -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono:   ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --shell:  1120px;
   }
 
   * { box-sizing: border-box; }
 
-  html { scroll-behavior: smooth; scroll-padding-top: 58px; }
+  html { scroll-behavior: smooth; scroll-padding-top: 64px; }
 
   body {
     margin: 0;
-    background: var(--bg);
+    background: var(--paper);
     color: var(--ink);
-    font: 17px/1.72 var(--serif);
+    font: 17px/1.68 var(--sans);
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
   }
 
-  a { color: var(--link); text-decoration: none; border-bottom: 1px solid rgba(31, 78, 121, .28); }
-  a:hover { border-bottom-color: var(--link); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
-  .col { max-width: var(--col); margin: 0 auto; padding: 0 24px; }
-  .wide { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  .shell { max-width: var(--shell); margin: 0 auto; padding: 0 28px; }
 
   /* ------------------------------------------------------------------ nav */
-  header.nav {
-    position: sticky; top: 0; z-index: 10;
-    background: var(--bg);
-    border-bottom: 1px solid var(--rule);
-  }
+  header.nav { border-bottom: 1px solid var(--rule); background: var(--paper); position: sticky; top: 0; z-index: 10; }
   .nav-inner {
-    max-width: 860px; margin: 0 auto; padding: 0 24px;
-    height: 46px; display: flex; align-items: center; gap: 18px;
-    font-family: var(--sans); font-size: 13px;
+    max-width: var(--shell); margin: 0 auto; padding: 0 28px;
+    height: 58px; display: flex; align-items: center; gap: 24px;
   }
-  .nav-brand { font-weight: 600; letter-spacing: .01em; border: 0; color: var(--ink); }
-  .nav-brand:hover { border: 0; }
-  .nav-links { margin-left: auto; display: flex; gap: 15px; flex-wrap: wrap; }
-  .nav-links a { color: var(--muted); border: 0; }
-  .nav-links a:hover { color: var(--ink); }
+  .brand { font-weight: 650; letter-spacing: -.015em; font-size: 16px; color: var(--ink); }
+  .brand span { color: var(--faint); font-weight: 400; margin-left: 8px; font-size: 13px; }
+  nav.top { margin-left: auto; display: flex; gap: 22px; font-size: 14px; }
+  nav.top a { color: var(--muted); }
+  nav.top a:hover { color: var(--ink); text-decoration: none; }
+  nav.top a.out { color: var(--accent); }
 
-  /* ------------------------------------------------------------- baslik */
-  .masthead { padding: 58px 0 6px; }
+  /* ----------------------------------------------------------------- hero */
+  .hero { background: var(--soft); padding: 74px 0 46px; border-bottom: 1px solid var(--rule); }
   .kicker {
-    font-family: var(--sans); font-size: 12px; letter-spacing: .11em;
-    text-transform: uppercase; color: var(--faint); margin: 0 0 20px;
+    font-size: 12.5px; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--faint); margin: 0 0 22px;
   }
   h1 {
-    font-size: clamp(27px, 3.6vw, 35px); line-height: 1.24;
-    letter-spacing: -.012em; font-weight: 600; margin: 0 0 16px;
+    font-size: clamp(33px, 4.4vw, 52px); line-height: 1.08;
+    letter-spacing: -.028em; font-weight: 650; margin: 0; max-width: 15ch;
     text-wrap: balance;
   }
-  .byline { font-size: 16px; color: var(--muted); margin: 0 0 4px; }
+  .lede {
+    font-size: 19px; line-height: 1.62; color: var(--muted);
+    max-width: 60ch; margin: 22px 0 0;
+  }
+  .byline {
+    display: flex; flex-wrap: wrap; gap: 6px 16px;
+    font-size: 13.5px; color: var(--faint);
+    margin: 26px 0 0; padding-top: 18px; border-top: 1px solid var(--rule);
+  }
   .byline b { color: var(--ink); font-weight: 600; }
-  .affil { font-size: 15px; color: var(--faint); margin: 0; }
-  .doclinks {
-    font-family: var(--sans); font-size: 13.5px; color: var(--faint);
-    margin: 22px 0 0; padding: 0; list-style: none;
-    display: flex; flex-wrap: wrap; gap: 6px 10px;
-  }
-  .doclinks li { display: flex; align-items: center; gap: 10px; }
-  .doclinks li + li::before { content: "·"; color: var(--rule); }
 
-  /* ------------------------------------------------------------- bolumler */
-  section { padding: 40px 0; border-top: 1px solid var(--rule-lt); }
-  section:first-of-type { border-top: 0; margin-top: 34px; }
+  /* ---------------------------------------------------------------- şerit */
+  .strip {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    margin: 30px 0 0;
+  }
+  .strip img {
+    width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover;
+    border-radius: 4px; background: #000; display: block;
+  }
+  .strip-cap { font-size: 12.5px; color: var(--faint); margin: 12px 0 0; }
 
-  h2 {
-    font-size: 21px; font-weight: 600; letter-spacing: -.005em;
-    margin: 0 0 14px; line-height: 1.35;
+  /* -------------------------------------------------------------- metrik */
+  .metrics {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--rule);
   }
-  h2 .n { color: var(--faint); font-weight: 400; margin-right: .5em; font-variant-numeric: tabular-nums; }
-  p { margin: 0 0 15px; }
-  p.lead { color: var(--ink); }
-  .muted { color: var(--muted); }
+  .metric { padding: 26px 26px 26px 0; border-right: 1px solid var(--rule); }
+  .metric:last-child { border-right: 0; }
+  .metric + .metric { padding-left: 26px; }
+  .metric .v {
+    font-size: 32px; font-weight: 650; letter-spacing: -.025em;
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .metric .k { font-size: 12.5px; color: var(--faint); margin-top: 9px; line-height: 1.45; }
 
-  h3 {
-    font-family: var(--sans); font-size: 14px; font-weight: 650;
-    letter-spacing: .01em; margin: 30px 0 10px; color: var(--ink);
+  /* --------------------------------------------------------------- bölüm */
+  .case { padding: 58px 0; border-bottom: 1px solid var(--rule); }
+  .case:last-of-type { border-bottom: 0; }
+  .case > .shell { display: grid; grid-template-columns: 178px minmax(0, 1fr); gap: 56px; }
+  .case .body { min-width: 0; }
+  .label {
+    font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--faint); margin: 0;
   }
+  .label b { display: block; margin-top: 8px; font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: 0; text-transform: none; }
+  .body h2 {
+    font-size: 26px; line-height: 1.25; letter-spacing: -.018em;
+    font-weight: 650; margin: 0 0 16px;
+  }
+  .body h2:not(:first-child) { margin-top: 38px; }
+  .body p { margin: 0 0 15px; max-width: 66ch; }
+  .body p:last-child { margin-bottom: 0; }
+  .body .small { font-size: 15.5px; color: var(--muted); }
 
-  /* --------------------------------------------------------------- sekil */
-  figure { margin: 26px 0; }
-  figure img {
-    display: block; max-width: 100%; height: auto;
-    border: 1px solid var(--rule); border-radius: 2px; background: #fff;
-  }
-  figure img.no-frame { border: 0; }
-  figcaption {
-    font-family: var(--sans); font-size: 13px; line-height: 1.6;
-    color: var(--muted); margin-top: 9px; max-width: 64ch;
-  }
-  .fig-center { text-align: center; }
-  .fig-center img { margin: 0 auto; }
-  .fig-center figcaption { margin-left: auto; margin-right: auto; text-align: left; }
-  .fig-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; align-items: start; }
-  .fig-pair img { width: 100%; }
-  /* makale sayfalarındaki gibi: geniş şekiller metin sütunundan taşar */
-  @media (min-width: 1000px) {
-    .fig-wide, .fig-pair { margin-left: -84px; margin-right: -84px; }
-  }
+  ol.steps { list-style: none; margin: 26px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 26px 40px; }
+  ol.steps li { border-top: 1px solid var(--rule); padding-top: 14px; }
+  ol.steps .n { font-family: var(--mono); font-size: 12px; color: var(--accent); display: block; margin-bottom: 6px; }
+  ol.steps b { display: block; font-size: 15.5px; margin-bottom: 4px; }
+  ol.steps span.t { font-size: 14.5px; color: var(--muted); line-height: 1.55; }
+
+  /* --------------------------------------------------------------- şekil */
+  figure { margin: 30px 0 0; }
+  figure:first-child { margin-top: 0; }
+  figure img { display: block; max-width: 100%; height: auto; border-radius: 4px; border: 1px solid var(--rule); }
+  figcaption { font-size: 12.5px; color: var(--faint); margin-top: 10px; max-width: 64ch; line-height: 1.55; }
+  figure img[src$=".svg"] { border: 0; }
+  figure.narrow img { max-width: min(520px, 100%); }
 
   /* ---------------------------------------------------------------- tablo */
-  .tbl { margin: 22px 0; overflow-x: auto; }
-  table {
-    border-collapse: collapse; width: 100%;
-    font-family: var(--sans); font-size: 13.5px;
-  }
-  caption {
-    caption-side: bottom; text-align: left; padding-top: 9px;
-    font-family: var(--sans); font-size: 13px; color: var(--muted); line-height: 1.6;
-  }
-  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--rule-lt); vertical-align: top; }
-  thead th {
-    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
-    font-weight: 650; font-size: 12px; letter-spacing: .04em;
-    text-transform: uppercase; color: var(--muted); white-space: nowrap;
-  }
-  tbody tr:last-child td { border-bottom: 1px solid var(--rule); }
-  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tbl { margin: 24px 0 0; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); }
+  thead th { font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); font-weight: 600; border-top: 1px solid var(--rule); white-space: nowrap; }
+  th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-right: 18px; }
+  th.num:last-child, td.num:last-child { padding-right: 0; }
   td strong { font-weight: 650; }
-  #notebooklar th:nth-child(1) { width: 30px; }
-  #notebooklar th:nth-child(2) { width: 34%; }
-  #notebooklar th:nth-child(3) { width: 25%; }
 
-  /* ---------------------------------------------------------------- akis */
-  ol.pipe { margin: 18px 0 6px; padding-left: 22px; }
-  ol.pipe li { margin: 7px 0; color: var(--ink); }
-  ol.pipe b { font-weight: 600; }
-  ol.pipe .mono { color: var(--faint); }
+  /* ----------------------------------------------------------- arayüz */
+  .split { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 44px; align-items: start; }
+  .split img { width: 100%; height: auto; border-radius: 4px; border: 1px solid var(--rule); display: block; }
+  dl.btns { margin: 0; font-size: 14.5px; }
+  dl.btns dt { font-family: var(--mono); font-size: 12.5px; color: var(--ink); margin-top: 14px; }
+  dl.btns dt:first-child { margin-top: 0; }
+  dl.btns dd { margin: 3px 0 0; color: var(--muted); line-height: 1.5; }
 
-  /* ----------------------------------------------------------------- kod */
-  pre {
-    background: var(--panel); border: 1px solid var(--rule);
-    border-radius: 3px; padding: 14px 16px; overflow-x: auto;
-    margin: 0 0 12px; font-family: var(--mono); font-size: 12.5px;
-    line-height: 1.65; color: #2a2a27;
+  /* -------------------------------------------------------------- linkler */
+  .linklist { border-top: 1px solid var(--rule); margin: 6px 0 0; }
+  .linklist a {
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 15px 0; border-bottom: 1px solid var(--rule);
+    color: var(--ink); text-decoration: none;
   }
-  code { font-family: var(--mono); font-size: .88em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
-  pre code { background: none; padding: 0; font-size: inherit; }
-  .c { color: #8a8a80; }
-  .mono { font-family: var(--mono); font-size: .86em; color: var(--muted); }
+  .linklist a:hover { text-decoration: none; }
+  .linklist a:hover .lt { color: var(--accent); }
+  .linklist .lt { font-weight: 550; font-size: 15.5px; }
+  .linklist .lm { color: var(--faint); font-size: 13px; margin-left: auto; white-space: nowrap; }
+  .linklist .ar { color: var(--faint); font-size: 13px; }
 
-  /* --------------------------------------------------------------- not */
-  .note {
-    border-left: 2px solid var(--rule); padding: 2px 0 2px 16px;
-    margin: 22px 0 0; font-size: 15.5px; color: var(--muted);
-  }
-  .note b { color: var(--ink); font-weight: 600; }
-  .note.warn { border-left-color: #b58a4a; }
-
-  ul.plain { margin: 10px 0 15px; padding-left: 20px; color: var(--muted); }
-  ul.plain li { margin: 5px 0; }
+  /* ---------------------------------------------------------------- not */
+  ul.plain { margin: 12px 0 0; padding-left: 18px; color: var(--muted); font-size: 15.5px; }
+  ul.plain li { margin: 7px 0; }
   ul.plain b { color: var(--ink); font-weight: 600; }
 
-  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; }
+  .note {
+    margin: 26px 0 0; padding: 2px 0 2px 16px; border-left: 2px solid var(--accent);
+    font-size: 14.5px; color: var(--muted); max-width: 66ch;
+  }
+  .note b { color: var(--ink); }
 
   /* -------------------------------------------------------------- footer */
-  footer {
-    border-top: 1px solid var(--rule); margin-top: 46px; padding: 26px 0 54px;
-    font-family: var(--sans); font-size: 13px; color: var(--faint);
-  }
-  footer p { margin: 0 0 6px; }
-  footer .fnav { display: flex; gap: 14px; flex-wrap: wrap; }
+  footer { background: var(--soft); border-top: 1px solid var(--rule); padding: 40px 0 54px; }
+  .foot { display: flex; flex-wrap: wrap; gap: 18px 32px; align-items: baseline; justify-content: space-between; }
+  .foot p { margin: 0; font-size: 13.5px; color: var(--faint); }
+  .foot nav { display: flex; gap: 20px; font-size: 13.5px; }
 
-  @media (max-width: 720px) {
+  @media (max-width: 860px) {
     body { font-size: 16.5px; }
-    .nav-links { display: none; }
-    .masthead { padding-top: 40px; }
-    section { padding: 34px 0; }
-    .fig-pair, .cols2 { grid-template-columns: 1fr; gap: 22px; }
+    nav.top { display: none; }
+    .hero { padding: 48px 0 34px; }
+    h1 { max-width: none; }
+    .strip { grid-template-columns: 1fr 1fr; }
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .metric { padding: 20px 18px 20px 0; }
+    .metric:nth-child(2) { border-right: 0; }
+    .metric:nth-child(3), .metric:nth-child(4) { border-top: 1px solid var(--rule); }
+    .metric + .metric { padding-left: 18px; }
+    .metric:nth-child(3) { padding-left: 0; }
+    .case { padding: 40px 0; }
+    .case > .shell { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    ol.steps { grid-template-columns: 1fr; }
+    .split { grid-template-columns: 1fr; gap: 26px; }
+    table { font-size: 12.5px; }
+    th, td { padding: 9px 8px 9px 0; }
+    th.num, td.num { padding-right: 10px; }
   }
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 </head>
 <body>
 
 <header class="nav">
   <div class="nav-inner">
-    <a class="nav-brand" href="#top">LungScan</a>
-    <nav class="nav-links">
-      <a href="#akis">Çalışma hattı</a>
+    <a class="brand" href="#top">LungScan<span>Akdeniz Üniversitesi</span></a>
+    <nav class="top">
+      <a href="#yontem">Yöntem</a>
       <a href="#sonuclar">Sonuçlar</a>
-      <a href="#notebooklar">Notebook'lar</a>
+      <a href="#arayuz">Arayüz</a>
       <a href="#makale">Makale</a>
-      <a href="#kurulum">Kurulum</a>
-      <a href="#etik">Etik</a>
-      <a href="https://github.com/bahadirmkl/LungScan-AI">GitHub</a>
+      <a class="out" href="https://github.com/bahadirmkl/LungScan-AI">GitHub ↗</a>
     </nav>
   </div>
 </header>
 
 <main id="top">
 
-  <!-- ------------------------------------------------------------ künye -->
-  <div class="masthead">
-    <div class="col">
-      <p class="kicker">Bitirme projesi · Akdeniz Üniversitesi · Elektrik-Elektronik Mühendisliği</p>
-      <h1>Akciğer PET/CT kesitlerinde kanserli lezyon tespiti ve konturlama</h1>
-      <p class="byline"><b>İhsan Bahadır Emekli</b> · Danışman: Doç. Dr. H. Feza Carlak</p>
-      <p class="affil">Akdeniz Üniversitesi, Mühendislik Fakültesi, Antalya — 2024</p>
+  <!-- ------------------------------------------------------------- hero -->
+  <div class="hero">
+    <div class="shell">
+      <p class="kicker">Bitirme projesi · 2024</p>
+      <h1>Akciğer PET/CT kesitlerinde lezyon tespiti ve konturlama</h1>
+      <p class="lede">
+        İki aşamalı bir derin öğrenme hattı: InceptionV3 her kesiti normal/anormal diye ayırıyor,
+        YOLOv8m-seg yalnızca anormal kesitlerde tümörün sınırını çiziyor. Sonuç, orijinal meta
+        verileri korunarak DICOM serisine geri yazılıyor.
+      </p>
+      <p class="byline">
+        <span><b>İhsan Bahadır Emekli</b></span>
+        <span>Danışman: Doç. Dr. H. Feza Carlak</span>
+        <span>Elektrik-Elektronik Mühendisliği, Akdeniz Üniversitesi</span>
+      </p>
 
-      <ul class="doclinks">
-        <li><a href="makale/LungScan-Makale-TR.pdf">Makale (TR, PDF)</a></li>
-        <li><a href="makale/LungScan-Paper-EN.pdf">Paper (EN, PDF)</a></li>
-        <li><a href="https://github.com/bahadirmkl/LungScan-AI">Kod</a></li>
-        <li><a href="https://github.com/bahadirmkl/LungScan-AI/releases/tag/v1.0.0">Model ağırlıkları</a></li>
-        <li><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/CITATION.cff">Atıf</a></li>
-      </ul>
+      <div class="strip">
+        <img src="images/kart/tespit-1.jpg" alt="PET/CT kesitinde tümör bölgesi ve güven skoru" width="400" height="300">
+        <img src="images/kart/tespit-2.jpg" alt="PET/CT kesitinde iki lezyon ve güven skorları" width="400" height="300">
+        <img src="images/kart/tespit-3.jpg" alt="PET/CT kesitinde üç lezyon ve güven skorları" width="400" height="300">
+        <img src="images/kart/tespit-4.jpg" alt="PET/CT kesitinde iki lezyon ve güven skorları" width="400" height="300">
+      </div>
+      <p class="strip-cap">Modelin doğrulama kesitlerindeki çıktısı — kutular ve güven skorları tahmine aittir.
+        Kesitler anonimleştirilmiş hasta serilerinden alınmıştır.</p>
     </div>
   </div>
 
-  <!-- -------------------------------------------------------------- özet -->
-  <section id="ozet" style="border-top:0">
-    <div class="col">
-      <h2><span class="n">1</span>Özet</h2>
-      <p class="lead">
-        Bu çalışma, toraks PET/CT kesitlerini <em>normal</em> / <em>anormal</em> olarak sınıflandıran,
-        anormal kesitlerdeki kanserli bölgeyi piksel düzeyinde segmente ederek konturlayan ve sonucu
-        yeniden DICOM formatında üreten uçtan uca bir çalışma hattı sunar.
-      </p>
-      <p>
-        Sınıflandırma için InceptionV3, segmentasyon için YOLOv8m-seg kullanılmıştır. Projeye özel
-        veri kümesinde (987 kesit) segmentasyon modeli doğrulama kümesinde <b>0,893</b> kutu ve
-        <b>0,838</b> maske mAP@50 değerine ulaşmıştır; sınıflandırıcı 1.214 kesitte %99,8 doğruluk
-        vermiştir. Tüm kod, notebook'lar ve değerlendirme betikleri depoda açıktır.
-      </p>
-      <p class="muted" style="font-size:15.5px">
-        Metrikler tek merkezli, küçük ve projeye özel bir veri kümesinde elde edilmiştir; genelleme
-        performansı hakkında bilgi vermez. Bu yazılım klinik teşhis aracı değildir.
-      </p>
+  <!-- ---------------------------------------------------------- metrikler -->
+  <div class="shell">
+    <div class="metrics">
+      <div class="metric"><div class="v">0,838</div><div class="k">Maske mAP@50<br>YOLOv8m-seg, doğrulama</div></div>
+      <div class="metric"><div class="v">0,893</div><div class="k">Kutu mAP@50<br>kesinlik 0,894 · duyarlılık 0,807</div></div>
+      <div class="metric"><div class="v">%99,8</div><div class="k">Sınıflandırma doğruluğu<br>InceptionV3, 1.214 kesit</div></div>
+      <div class="metric"><div class="v">987</div><div class="k">Etiketli kesit<br>789 eğitim / 198 doğrulama</div></div>
     </div>
-  </section>
+  </div>
 
-  <!-- ------------------------------------------------------- çalışma hattı -->
-  <section id="akis">
-    <div class="col">
-      <h2><span class="n">2</span>Çalışma hattı</h2>
-      <p>
-        Sistem iki aşamalıdır. Sınıflandırıcı, incelenecek kesit sayısını azaltır; segmentasyon
-        modeli yalnızca anormal bulunan kesitlerde çalışarak lezyonun sınırını görünür hâle getirir.
-        Sonuçlar orijinal DICOM meta verileriyle eşleştirilerek geri yazılır ve masaüstü arayüzde
-        dilim dilim incelenir.
-      </p>
-
-      <ol class="pipe">
-        <li><b>DICOM serisi</b> — girdi, <span class="mono">kaynak_klasor/</span>; salt okunur, arayüz buradan dosya silmez.</li>
-        <li><b>PNG kesitler</b> — <span class="mono">hedef_klas/</span>, kesitler <span class="mono">InstanceNumber</span> sırasına dizilir.</li>
-        <li><b>Sınıflandırma</b> — InceptionV3 (<span class="mono">model_in_5_1.h5</span>) → <span class="mono">normal/</span> ve <span class="mono">abnormal/</span>.</li>
-        <li><b>Segmentasyon</b> — YOLOv8m-seg (<span class="mono">best.pt</span>) → <span class="mono">segmented/</span>; lezyon sınırı yalnızca kontur olarak çizilir.</li>
-        <li><b>Birleştirme</b> — <span class="mono">output/</span>; normal ve konturlanmış kesitler, tüm kesitler korunarak birleştirilir.</li>
-        <li><b>Sonuç DICOM</b> — <span class="mono">hasta_sonuclari/</span>; Tkinter tabanlı görüntüleyicide incelenir.</li>
-      </ol>
-
-      <figure class="fig-center">
-        <img src="images/akis-semasi-sade.svg" width="760" height="272"
-             alt="LungScan çalışma hattı: DICOM serisi, PNG kesitler, sınıflandırma, segmentasyon, birleştirme, PNG→DICOM ve görüntüleme">
-        <figcaption>Şekil 1 — DICOM serisinden sonuç görüntülemeye kadar yedi adımlı işlem hattı.
-          Oklar veri akışının yönünü gösterir.</figcaption>
-      </figure>
-
-      <div class="fig-pair fig-wide">
-        <figure>
-          <img src="images/makale/sekil-07-siniflandirma-tahminleri.jpg" alt="Normal ve anormal kesitler için sınıflandırma tahminleri">
-          <figcaption>Şekil 2 — Sınıflandırma aşamasının çıktısı: normal/anormal tahminleri.</figcaption>
-        </figure>
-        <figure>
-          <img src="images/makale/sekil-10-konturlar-ve-maskeler.jpg" alt="Tahmin edilen konturlar, gerçek maske ve tahmin edilen maske">
-          <figcaption>Şekil 3 — Segmentasyon çıktısı: (a) tahmin edilen konturlar, (b) gerçek maske,
-            (c) tahmin edilen maske.</figcaption>
-        </figure>
+  <!-- --------------------------------------------------------------- 01 -->
+  <section class="case" id="problem">
+    <div class="shell">
+      <p class="label">01<b>Problem</b></p>
+      <div class="body">
+        <h2>Her kesiti tek tek okumak yerine, okunacak kesiti bulmak</h2>
+        <p>
+          Bir PET/CT serisi yüzlerce kesitten oluşuyor. Radyoloğun tüm seriyi tarayıp şüpheli
+          bölgenin sınırını elle çizmesi hem zaman alıyor hem de gözlemciye göre değişiyor.
+        </p>
+        <p>
+          Bu projede amaç tanı koymak değil: kesitleri önceden eleyip yalnızca şüpheli olanların
+          sınırını önermek. Böylece işaretleme yükü azalıyor, sınırlar aynı kuralla üretiliyor.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- ---------------------------------------------------------- sonuçlar -->
-  <section id="sonuclar">
-    <div class="col">
-      <h2><span class="n">3</span>Sonuçlar</h2>
-      <p>
-        Nihai model <b>YOLOv8m-seg</b>: 100 epoch, <span class="mono">imgsz=640</span>,
-        <span class="mono">batch=64</span>, SGD (<span class="mono">lr0=0.001</span>), tek sınıf
-        (<span class="mono">Cancer</span>). Metrikler doğrulama kümesi üzerinde, Ultralytics'in
-        COCO değerlendirmesiyle hesaplanmıştır. Eğitim parametrelerinin tamamı
-        <code>results/train_yolov8m_seg/args.yaml</code> içindedir.
-      </p>
+  <!-- --------------------------------------------------------------- 02 -->
+  <section class="case" id="yontem">
+    <div class="shell">
+      <p class="label">02<b>Yöntem</b></p>
+      <div class="body">
+        <h2>Yedi adımlı hat, iki model</h2>
+        <p>
+          Veri hazırlığından sonuç serisine kadar her adım klasör bazlı ve tekrar üretilebilir.
+          Kaynak DICOM klasörü salt okunur; hat oradan dosya silmiyor.
+        </p>
 
-      <div class="tbl">
-        <table>
-          <caption>Tablo 1 — YOLOv8m-seg doğrulama metrikleri (987 kesit; 789 eğitim / 198 doğrulama).</caption>
-          <thead>
-            <tr>
-              <th>Görev</th>
-              <th class="num">Precision</th>
-              <th class="num">Recall</th>
-              <th class="num">mAP@50</th>
-              <th class="num">mAP@50-95</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Kutu (tespit)</td>
-              <td class="num">0,894</td><td class="num">0,807</td>
-              <td class="num"><strong>0,893</strong></td><td class="num">0,576</td>
-            </tr>
-            <tr>
-              <td>Maske (segmentasyon)</td>
-              <td class="num">0,861</td><td class="num">0,773</td>
-              <td class="num"><strong>0,838</strong></td><td class="num">0,472</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <ol class="steps">
+          <li><span class="n">01</span><b>Veri hazırlama</b>
+            <span class="t">DICOM → PNG, kesitler <code>InstanceNumber</code> sırasına diziliyor;
+              QuPath poligonları COCO'dan YOLO formatına çevriliyor.</span></li>
+          <li><span class="n">02</span><b>Sınıflandırma</b>
+            <span class="t">ImageNet ağırlıklarıyla başlatılan InceptionV3, kesiti normal ya da
+              anormal olarak etiketliyor.</span></li>
+          <li><span class="n">03</span><b>Segmentasyon</b>
+            <span class="t">YOLOv8m-seg, yalnızca anormal kesitlerde çalışıp lezyon maskesini ve
+              sınırını üretiyor.</span></li>
+          <li><span class="n">04</span><b>Birleştirme</b>
+            <span class="t">İşaretli ve işaretsiz kesitler tek seride toplanıyor, yeni
+              <code>SeriesInstanceUID</code> ile DICOM'a yazılıyor.</span></li>
+        </ol>
 
-      <figure class="fig-center">
-        <img src="images/makale/sekil-11-iou-degerleri.jpg" alt="Konturların IoU değerleri">
-        <figcaption>Şekil 4 — Doğrulama kümesinde tahmin edilen konturların IoU değerleri.
-          Eğitim eğrilerinin ham çıktıları ve karmaşıklık matrisi <code>results/</code> klasöründedir.</figcaption>
-      </figure>
-
-      <h3>Sınıflandırma modeli</h3>
-      <figure class="fig-center">
-        <img src="images/makale/sekil-06-siniflandirma-metrikleri.png" alt="Sınıflandırma modelinin karışıklık matrisi ve sınıflandırma raporu">
-        <figcaption>Şekil 5 — Karışıklık matrisi ve sınıflandırma raporu (1.214 kesit;
-          597 anormal / 614 normal).</figcaption>
-      </figure>
-
-      <div class="fig-pair fig-wide">
         <figure>
-          <img src="images/makale/sekil-08-egitim-kaybi.png" alt="Eğitim ve doğrulama kaybı grafiği">
-          <figcaption>Şekil 6 — Eğitim ve doğrulama kaybı.</figcaption>
-        </figure>
-        <figure>
-          <img src="images/makale/sekil-09-egitim-dogrulugu.png" alt="Eğitim ve doğrulama doğruluk grafiği">
-          <figcaption>Şekil 7 — Eğitim ve doğrulama doğruluğu.</figcaption>
+          <img src="images/akis-semasi-sade.svg" width="760" height="272"
+               alt="Çalışma hattı: DICOM serisi, PNG kesitler, sınıflandırma, segmentasyon, birleştirme, PNG→DICOM ve görüntüleme">
+          <figcaption>Şekil 1 — Akış: dört adım soldan sağa, ardından birleştirme ve sonuç serisi.</figcaption>
         </figure>
       </div>
-
-      <figure class="fig-center fig-wide">
-        <img src="images/karisiklik-matrisi.png" alt="YOLOv8m-seg normalleştirilmiş karışıklık matrisi">
-        <figcaption>Şekil 8 — Normalleştirilmiş karışıklık matrisi: tespit ve segmentasyon için
-          arka plan/lezyon ayrımı.</figcaption>
-      </figure>
-
-      <figure class="fig-center fig-wide">
-        <img src="images/dogrulama-tahminleri.jpg" alt="Doğrulama kümesinden model tahminleri: kutu ve güven skorları">
-        <figcaption>Şekil 9 — Doğrulama batch'inden tahminler. Dosya adları anonimleştirilmiş hasta
-          kimlikleridir.</figcaption>
-      </figure>
-
-      <div class="note">
-        <b>Bu değerler nasıl okunmalı?</b> Eğitim/doğrulama ayrımı <em>kesit</em> düzeyindedir; aynı
-        hastanın kesitleri iki kümede de bulunabilir. Bu, raporlanan metrikleri iyimser kılar. Hasta
-        düzeyinde (group-wise) bölme, yayına hazır bir değerlendirme için zorunludur. Makalede
-        raporlanan %99,8 / %99,0 değerleri de yalnızca bu veri kümesi için geçerlidir.
-      </div>
     </div>
   </section>
 
-  <!-- -------------------------------------------------------- notebook'lar -->
-  <section id="notebooklar">
-    <div class="col">
-      <h2><span class="n">4</span>Notebook'lar</h2>
-      <p>
-        Numaralandırma, veri hazırlamadan dağıtıma giden sırayı izler. ★ işaretli iki notebook,
-        depodaki model ağırlıklarını üretir.
-      </p>
+  <!-- --------------------------------------------------------------- 03 -->
+  <section class="case" id="sonuclar">
+    <div class="shell">
+      <p class="label">03<b>Sonuçlar</b></p>
+      <div class="body">
+        <h2>Doğrulama kümesinde 0,838 maske mAP@50</h2>
+        <p>
+          Eğitim 100 epoch, <code>imgsz=640</code>, <code>batch=64</code>, SGD
+          (<code>lr0=0.001</code>) ve tek sınıf (<code>Cancer</code>) ile yapıldı. Metrikler
+          Ultralytics'in COCO değerlendirmesiyle hesaplandı.
+        </p>
 
-      <div class="tbl">
-        <table>
-          <thead>
-            <tr><th>#</th><th>Notebook</th><th>Yaklaşım</th><th>Not</th></tr>
-          </thead>
-          <tbody>
-            <tr><td class="num">01</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/01_veri_hazirlama.ipynb">01_veri_hazirlama</a></td><td>—</td><td>DICOM → PNG, etiket → maske → YOLO etiketi, train/val ayrımı</td></tr>
-            <tr><td class="num">02</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/02_siniflandirma_vgg16.ipynb">02_siniflandirma_vgg16</a></td><td>VGG16 + tam bağlı başlık</td><td>6 varyantın karşılaştırması</td></tr>
-            <tr><td class="num">03</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/03_siniflandirma_inceptionv3.ipynb">03_siniflandirma_inceptionv3</a></td><td>InceptionV3 + ince ayar</td><td>★ Üretim sınıflandırıcısı (<span class="mono">model_in_5_1.h5</span>)</td></tr>
-            <tr><td class="num">04</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/04_degerlendirme_konfuzyon_matrisi.ipynb">04_degerlendirme_konfuzyon_matrisi</a></td><td>VGG16 @512²</td><td>Giriş boyutu ablasyonu ve karışıklık matrisi</td></tr>
-            <tr><td class="num">05</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/05_segmentasyon_unet.ipynb">05_segmentasyon_unet</a></td><td>U-Net</td><td>Piksel düzeyinde segmentasyon, IoU / Dice</td></tr>
-            <tr><td class="num">06</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/06_segmentasyon_detectron2.ipynb">06_segmentasyon_detectron2</a></td><td>Mask R-CNN (Detectron2)</td><td>İki aşamalı tespit + segmentasyon</td></tr>
-            <tr><td class="num">07</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/07_segmentasyon_yolov8.ipynb">07_segmentasyon_yolov8</a></td><td>YOLOv8m-seg</td><td>★ Üretim segmentasyonu (<span class="mono">best.pt</span>)</td></tr>
-            <tr><td class="num">08</td><td><a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/notebooks/08_cikarim_pipeline.ipynb">08_cikarim_pipeline</a></td><td>—</td><td>Arayüzün Colab prototipi (uçtan uca hat)</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3>Denemeler</h3>
-      <p class="muted">
-        Üretimde kullanılmayan, karşılaştırma amacıyla tutulan çalışmalar
-        <code>notebooks/denemeler/</code> altındadır:
-      </p>
-      <ul class="plain">
-        <li><b>Model boyutu karşılaştırması</b> — n → n (50 epoch) → m → l → x sırasıyla beş YOLOv8
-          varyantı. Sonuç: <b>yolov8m</b> doğruluk/hız dengesi açısından en uygun seçimdir.
-          <span class="mono">yolov8l</span> için kayıtlı değerler yolov8m ile birebir aynıydı
-          (kopyalama hatası); bu satır bağımsız kanıt olarak değerlendirilmemelidir.</li>
-        <li><b>SVM öznitelik çıkarımı</b> — VGG16 öznitelikleri + doğrusal SVM. Yöntem hattı halka
-          açık bir veri kümesi (cats vs dogs) üzerinde denendi; sonuçlar akciğer verisiyle ilgili
-          değildir.</li>
-        <li><b>Klasik görüntü işleme</b> — Otsu eşikleme, parlak bölge işaretleme ve watershed.
-          Hiçbiri lezyonu güvenilir biçimde ayırt edemedi; en önemli çıkarım, lezyonun yoğunlukla
-          değil <b>bağlamla</b> tanımlandığıdır.</li>
-      </ul>
-
-      <figure class="fig-center">
-        <img src="images/makale/sekil-04-otsu-esikleme.jpg" alt="Klasik yaklaşım denemesi: filtrelenmiş görüntü ve Otsu eşikleme">
-        <figcaption>Şekil 10 — Klasik yaklaşım denemesi: (a) filtrelenmiş görüntü, (b) Otsu
-          eşikleme ile çıkarılan akciğer alanı.</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- ------------------------------------------------------------ makale -->
-  <section id="makale">
-    <div class="col">
-      <h2><span class="n">5</span>Makale</h2>
-      <p>
-        <b>Akciğer Kanser Tanılı Hastalarda Kanserli Doku Tespiti İçin Yapay Zeka Yöntemleri
-        Kullanılarak Kanserli Bölgenin Konturlanması</b><br>
-        <span class="muted">Doç. Dr. H. Feza Carlak, İhsan Bahadır Emekli — Akdeniz Üniversitesi,
-        Elektrik-Elektronik Mühendisliği Bölümü.</span>
-      </p>
-
-      <ul class="plain">
-        <li><a href="makale/LungScan-Makale-TR.pdf">Türkçe (özgün makale)</a> — 7 sayfa. PET/CT veri
-          kümesi, InceptionV3 sınıflandırma, YOLOv8 segmentasyon ve GUI.</li>
-        <li><a href="makale/LungScan-Paper-EN.pdf">English (translation)</a> — 7 pages. Detection and
-          Contouring of Cancerous Tissue in Lung Cancer Patients.</li>
-      </ul>
-
-      <div class="note warn">
-        <b>Not:</b> Makale hakem değerlendirmesinden geçmiş bir yayın değildir; bitirme projesi
-        raporu olarak hazırlanmıştır. PDF'lerde hasta adı, protokol numarası veya yakılmış
-        (burned-in) kimlik bilgisi bulunmaz.
-      </div>
-    </div>
-  </section>
-
-  <!-- ----------------------------------------------------------- kurulum -->
-  <section id="kurulum">
-    <div class="col">
-      <h2><span class="n">6</span>Kurulum ve kullanım</h2>
-      <p>
-        Model ağırlıkları depo boyutunu şişirmemek için GitHub Releases üzerinden dağıtılır; veri
-        kümesi hasta gizliliği nedeniyle paylaşılmaz. Proje Python 3.10–3.11 ile geliştirilmiştir.
-      </p>
-
-      <h3>Depo ve bağımlılıklar</h3>
-<pre><code>git clone https://github.com/bahadirmkl/LungScan-AI.git
-cd LungScan-AI
-python -m venv .venv &amp;&amp; source .venv/bin/activate
-pip install -r requirements.txt</code></pre>
-
-      <h3>Model ağırlıkları</h3>
-<pre><code><span class="c"># v1.0.0 sürümündeki ağırlıklar</span>
-BASE=https://github.com/bahadirmkl/LungScan-AI/releases/download/v1.0.0
-curl -L -o app/best.pt          "$BASE/best.pt"
-curl -L -o app/model_in_5_1.h5 "$BASE/model_in_5_1.h5"</code></pre>
-      <p class="muted" style="font-size:15px">
-        Doğrulama: <code>shasum -a 256 app/best.pt</code> → <span class="mono">9ef3dfbc…742d2</span>
-      </p>
-
-      <h3>Arayüz</h3>
-<pre><code>cd app
-python lungscan_gui.py</code></pre>
-
-      <div class="tbl">
-        <table>
-          <caption>Tablo 2 — Arayüzdeki dört adım.</caption>
-          <thead>
-            <tr><th>Düğme</th><th>Ne yapar</th></tr>
-          </thead>
-          <tbody>
-            <tr><td><b>Start Process</b></td><td>DICOM serisini <span class="mono">InstanceNumber</span> sırasına dizer, verilen indeks aralığındaki kesitleri PNG'ye çevirir.</td></tr>
-            <tr><td><b>Start Prediction</b></td><td>Kesitleri sınıflandırır, anormal olanları segmente eder, sonuçları birleştirir ve DICOM'a geri dönüştürür.</td></tr>
-            <tr><td><b>View Result</b></td><td>Üretilen DICOM serisini dahili görüntüleyicide açar (fare tekerleğiyle dilimler arasında gezinilir).</td></tr>
-            <tr><td><b>Restart</b></td><td>Ara klasörleri temizleyerek başlangıç durumuna döner.</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <figure class="fig-center">
-        <img src="images/makale/sekil-05-gui.jpg" alt="LungScan arayüzü: DICOM Processor penceresi ve dahili DICOM görüntüleyici">
-        <figcaption>Şekil 11 — Arayüz: indeks aralığı girilir, dört adım çalıştırılır ve sonuç serisi
-          dahili DICOM görüntüleyicide incelenir.</figcaption>
-      </figure>
-
-      <h3>Beklenen çalışma klasörü</h3>
-<pre><code>&lt;WORK_DIR&gt;/
-├── kaynak_klasor/      <span class="c"># ham DICOM serisi (girdi)</span>
-├── hedef_klas/         <span class="c"># DICOM → PNG çıktısı</span>
-├── normal/             <span class="c"># sınıflandırıcı: normal kesitler</span>
-├── abnormal/           <span class="c"># sınıflandırıcı: anormal kesitler</span>
-├── segmented/          <span class="c"># lezyon konturu çizilmiş kesitler</span>
-├── output/             <span class="c"># normal + segmented birleşimi</span>
-└── hasta_sonuclari/    <span class="c"># sonuç DICOM serisi (çıktı)</span></code></pre>
-    </div>
-  </section>
-
-  <!-- -------------------------------------------------------------- etik -->
-  <section id="etik">
-    <div class="col">
-      <h2><span class="n">7</span>Gizlilik, etik ve sınırlamalar</h2>
-
-      <div class="cols2">
-        <div>
-          <h3 style="margin-top:0">Veri gizliliği</h3>
-          <ul class="plain">
-            <li>Depoda <b>hiçbir hasta verisi, DICOM dosyası veya kişisel sağlık bilgisi bulunmaz.</b></li>
-            <li>Notebook çıktılarındaki örnek kesitler, PACS'ten anonimleştirilerek dışa aktarılmıştır.</li>
-            <li>Model ağırlıkları ve veri kümesi ayrı tutulur.</li>
-            <li>Makale PDF'lerinde hasta adı, protokol numarası veya yakılmış kimlik bilgisi yoktur.</li>
-          </ul>
+        <div class="tbl">
+          <table>
+            <thead>
+              <tr>
+                <th>Görev</th>
+                <th class="num">Precision</th>
+                <th class="num">Recall</th>
+                <th class="num">mAP@50</th>
+                <th class="num">mAP@50-95</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Kutu (tespit)</td><td class="num">0,894</td><td class="num">0,807</td><td class="num"><strong>0,893</strong></td><td class="num">0,576</td></tr>
+              <tr><td>Maske (segmentasyon)</td><td class="num">0,861</td><td class="num">0,773</td><td class="num"><strong>0,838</strong></td><td class="num">0,472</td></tr>
+            </tbody>
+          </table>
         </div>
-        <div>
-          <h3 style="margin-top:0">Sınırlamalar</h3>
-          <ul class="plain">
-            <li>Bölme düzeyi <b>kesit</b> bazlıdır; hasta düzeyinde değildir → metrikler iyimser.</li>
-            <li>Tek sınıf: tüm lezyonlar <span class="mono">Cancer</span> başlığı altındadır; lezyon tipi ayrımı yoktur.</li>
-            <li>Etiketler tek bir radyolog tarafından çizilmiştir; gözlemciler arası uyum ölçülmemiştir.</li>
-            <li>Sınıflandırıcı ve segmentasyon modeli farklı veri kümelerinde eğitilmiştir; olasılık kalibrasyonu yapılmamıştır.</li>
-          </ul>
+
+        <figure class="narrow">
+          <img src="images/makale/sekil-10-konturlar-ve-maskeler.jpg" width="616" height="760"
+               alt="Üç panel: tahmin edilen konturlar, gerçek maske ve tahmin edilen maske">
+          <figcaption>Şekil 2 — Bir doğrulama kesitinde (a) tahmin edilen konturlar, (b) gerçek
+            maske, (c) tahmin edilen maske. Eğitim eğrileri ve karışıklık matrisi
+            <code>results/</code> klasöründedir.</figcaption>
+        </figure>
+
+        <p class="note">
+          <b>Nasıl okunmalı:</b> Eğitim/doğrulama ayrımı kesit düzeyinde; aynı hastanın kesitleri iki
+          kümede de bulunabiliyor. Bu, metrikleri iyimser kılar — yayına hazır bir değerlendirme için
+          hasta düzeyinde bölme gerekir.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------------- 04 -->
+  <section class="case" id="arayuz">
+    <div class="shell">
+      <p class="label">04<b>Arayüz</b></p>
+      <div class="body">
+        <h2>Dört düğme, tek akış</h2>
+        <p>
+          Masaüstü arayüz Tkinter ile yazıldı. İndeks aralığı girilip adımlar sırayla çalıştırılıyor;
+          sonuç serisi aynı pencerede, dahili DICOM görüntüleyicide inceleniyor.
+        </p>
+
+        <div class="split">
+          <img src="images/kart/arayuz.jpg" alt="LungScan arayüzü: DICOM Processor penceresi ve konturlanmış kesit" width="699" height="690">
+          <dl class="btns">
+            <dt>Start Process</dt>
+            <dd>Seriyi sıraya dizer, verilen aralıktaki kesitleri PNG'ye çevirir.</dd>
+            <dt>Start Prediction</dt>
+            <dd>Kesitleri sınıflandırır, anormal olanları segmente eder, sonucu DICOM'a yazar.</dd>
+            <dt>Viewing Image</dt>
+            <dd>Sonuç serisini görüntüleyicide açar; tekerlekle dilimler arasında gezinilir.</dd>
+            <dt>Restart</dt>
+            <dd>Ara klasörleri temizler, başlangıç durumuna döner.</dd>
+          </dl>
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="note warn">
-        <b>Tıbbi uyarı:</b> Bu yazılım yalnızca akademik araştırma amaçlıdır ve bir klinik teşhis
-        aracı değildir. Hiçbir tıbbi karar bu sistemin çıktısına dayandırılmamalıdır. Ayrıntılı yasal
-        ve etik uyarı için <a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/DISCLAIMER.md">DISCLAIMER.md</a>
-        dosyasına bakın.
+  <!-- --------------------------------------------------------------- 05 -->
+  <section class="case" id="makale">
+    <div class="shell">
+      <p class="label">05<b>Makale ve kod</b></p>
+      <div class="body">
+        <h2>Kaynaklar</h2>
+        <p class="small">
+          <b>Akciğer Kanser Tanılı Hastalarda Kanserli Doku Tespiti İçin Yapay Zeka Yöntemleri
+          Kullanılarak Kanserli Bölgenin Konturlanması</b> — Doç. Dr. H. Feza Carlak,
+          İhsan Bahadır Emekli. Hakem değerlendirmesinden geçmiş bir yayın değil; bitirme projesi raporu.
+        </p>
+
+        <div class="linklist">
+          <a href="makale/LungScan-Makale-TR.pdf">
+            <span class="lt">Makale — Türkçe</span><span class="lm">7 sayfa · PDF</span><span class="ar">↗</span>
+          </a>
+          <a href="makale/LungScan-Paper-EN.pdf">
+            <span class="lt">Paper — English translation</span><span class="lm">7 pages · PDF</span><span class="ar">↗</span>
+          </a>
+          <a href="https://github.com/bahadirmkl/LungScan-AI">
+            <span class="lt">Depo — kod, notebook'lar, sonuçlar</span><span class="lm">GitHub</span><span class="ar">↗</span>
+          </a>
+          <a href="https://github.com/bahadirmkl/LungScan-AI/releases/tag/v1.0.0">
+            <span class="lt">Model ağırlıkları</span><span class="lm">best.pt · model_in_5_1.h5</span><span class="ar">↗</span>
+          </a>
+          <a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/CITATION.cff">
+            <span class="lt">Atıf bilgisi</span><span class="lm">CITATION.cff</span><span class="ar">↗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------------- 06 -->
+  <section class="case" id="sinirlar">
+    <div class="shell">
+      <p class="label">06<b>Sınırlar</b></p>
+      <div class="body">
+        <h2>Neyi bilerek yapmadım</h2>
+        <ul class="plain">
+          <li>Bölme <b>kesit</b> düzeyinde; hasta düzeyinde değil. Metrikler bu yüzden iyimser.</li>
+          <li>Tek sınıf: tüm lezyonlar <code>Cancer</code>; tümör tipi ayrımı yok.</li>
+          <li>Etiketler tek radyolog tarafından çizildi; gözlemciler arası uyum ölçülmedi.</li>
+          <li>Sınıflandırıcı ve segmentasyon modeli farklı kümelerde eğitildi; olasılık kalibrasyonu yapılmadı.</li>
+        </ul>
+        <p class="note">
+          <b>Tıbbi uyarı:</b> Bu yazılım yalnızca akademik araştırma amaçlıdır, klinik teşhis aracı
+          değildir. Ayrıntılar için
+          <a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/DISCLAIMER.md">DISCLAIMER.md</a>.
+        </p>
       </div>
     </div>
   </section>
@@ -569,15 +452,14 @@ python lungscan_gui.py</code></pre>
 </main>
 
 <footer>
-  <div class="col">
-    <p><b>LungScan</b> — Akdeniz Üniversitesi Elektrik-Elektronik Mühendisliği bitirme projesi, 2024.
-      Kod <a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/LICENSE">MIT</a> lisansı altındadır.</p>
-    <p class="fnav">
+  <div class="shell foot">
+    <p>LungScan · Akdeniz Üniversitesi Elektrik-Elektronik Mühendisliği bitirme projesi, 2024 ·
+      <a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/LICENSE">MIT</a></p>
+    <nav>
       <a href="https://github.com/bahadirmkl/LungScan-AI">GitHub</a>
       <a href="https://github.com/bahadirmkl/LungScan-AI/releases">Releases</a>
       <a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/DISCLAIMER.md">Disclaimer</a>
-      <a href="https://github.com/bahadirmkl/LungScan-AI/blob/main/CITATION.cff">Atıf</a>
-    </p>
+    </nav>
   </div>
 </footer>
 
