@@ -87,8 +87,8 @@
 
   /* ---------------------------------------------------------------- şerit */
   .strip {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-    margin: 30px 0 0;
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+    margin: 30px 0 0; max-width: 780px;
   }
   .strip img {
     width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover;
@@ -247,13 +247,11 @@
       </p>
 
       <div class="strip">
-        <img src="images/kart/tespit-1.jpg" alt="PET/CT kesitinde tümör bölgesi ve güven skoru" width="400" height="300">
-        <img src="images/kart/tespit-2.jpg" alt="PET/CT kesitinde iki lezyon ve güven skorları" width="400" height="300">
-        <img src="images/kart/tespit-3.jpg" alt="PET/CT kesitinde üç lezyon ve güven skorları" width="400" height="300">
-        <img src="images/kart/tespit-4.jpg" alt="PET/CT kesitinde iki lezyon ve güven skorları" width="400" height="300">
+        <img src="images/kart/kesit-1.jpg" alt="PET/CT kesitinde ince yeşil konturla işaretlenmiş lezyon" width="456" height="342">
+        <img src="images/kart/kesit-2.jpg" alt="PET/CT kesitinde birden fazla lezyonun konturlanmış görünümü" width="568" height="426">
       </div>
-      <p class="strip-cap">Modelin doğrulama kesitlerindeki çıktısı — kutular ve güven skorları tahmine aittir.
-        Kesitler anonimleştirilmiş hasta serilerinden alınmıştır.</p>
+      <p class="strip-cap">Modelin önerdiği tümör sınırı iki farklı kesitte. Kesitler anonimleştirilmiş
+        hasta serilerinden alınmıştır; sınır yalnızca kontur olarak çizilir, tanısal içeriği kapatmaz.</p>
     </div>
   </div>
 
